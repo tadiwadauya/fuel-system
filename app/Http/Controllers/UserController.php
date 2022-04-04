@@ -584,7 +584,46 @@ class UserController extends Controller
                     $percentAllocation = ($currentAllocation->balance / $currentAllocation->alloc_size) * 100;
                     $usedAllocation = $currentAllocation->alloc_size - $currentAllocation->balance;
                 }
-            } else {
+            }
+
+            // $user_details = Auth::user()->paynumber;
+            // $search = $user_detail.date('FY');
+            // $currentMonth = date('m');
+            // $currentPetrols = DB::table('cash_sales')
+            //     ->select(DB::raw('sum(quantity) as currentPetrol'))
+            //     ->where('employee',Auth::user()->paynumber)
+            //     ->where('ftype','Petrol')
+            //     ->where('allocation',$search)
+            //     ->get();
+
+            // $currentDiesels = DB::table('cash_sales')
+            //     ->select(DB::raw('sum(quantity) as currentDiesel'))
+            //     ->where('employee',Auth::user()->paynumber)
+            //     ->where('ftype','Diesel')
+            //     ->where('allocation',$search)
+            //     ->get();
+
+            elseif (auth()->user()->allocation == 'Non-allocation'){
+
+
+                $currentAllocation = DB::table('non_allocations')
+                    ->select('allocation','balance', 'alloc_size')
+                    ->where('paynumber',Auth::user()->paynumber)
+                    ->where('allocation',$search)
+                    // ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    ->first();
+
+                if (is_null($currentAllocation) OR is_null($currentAllocation->balance) ){
+                    $percentAllocation = 100;
+                    $usedAllocation = 0;
+                } elseif($currentAllocation->balance == 0.0) {
+                    $percentAllocation = 0;
+                    $usedAllocation = $currentAllocation->alloc_size;
+                }else {
+                    $percentAllocation = ($currentAllocation->balance / $currentAllocation->alloc_size) * 100;
+                    $usedAllocation = $currentAllocation->alloc_size - $currentAllocation->balance;
+                }
+            }else {
                 $percentAllocation = 0;
                 $usedAllocation = 0;
                 $currentAllocation = null;
@@ -592,5 +631,6 @@ class UserController extends Controller
 
             return view('pages.user.home', compact('currentPetrol','currentDiesel', 'currentAllocation', 'percentAllocation', 'usedAllocation'));
         }
+
     }
 }

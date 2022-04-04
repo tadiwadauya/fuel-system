@@ -96,8 +96,8 @@
                                                 <div class="icons-xl uim-icon-info my-4">
                                                     <i class="uim uim-exclamation-triangle"></i>
                                                 </div>
-                                                <p>Petrol: $<span id="petrolPrice">{{$fsetting->petrol_price}}</span></p>
-                                                <p>Diesel: $<span id="dieselPrice">{{$fsetting->diesel_price}}</span></p>
+                                                <p>Petrol: ${{$fsetting->petrol_price}}</p>
+                                                <p>Diesel: ${{$fsetting->diesel_price}}</p>
                                                 <p>Payment Method: {{$fsetting->pay_method}}</p>
 
                                             </div>
@@ -152,7 +152,9 @@
                             @else
                                 <div class="card-body">
                                     <h4 class="header-title text-center text-info">You can currently apply for {{isset($balance->balance) ? $balance->balance : $balance->alloc_size}}L out of your {{$balance->alloc_size}}L for your {{date('F Y')}} Cashsale size</h4>
-
+                                    <input type="hidden" name="alloc_bal" value="{{$balance->balance}}">
+                                    <input type="hidden" name="applicable" value="{{$applicableCash}}">
+                                    <input type="hidden" name="allowed" value="{{($balance->alloc_size)}}">
                                 </div> <!-- end card-body-->
                             @endif
 
@@ -169,24 +171,6 @@
                                     @if ($errors->has('request_type'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('request_type') }}</strong>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="form-group has-feedback row {{ $errors->has('ftype') ? ' has-error ' : '' }}">
-                                {!! Form::label('ftype', 'Fuel Type', array('class' => 'col-md-3 control-label')); !!}
-                                <div class="col-md-9">
-                                    <div class="input-group">
-                                        <select class="form-control ftype" name="ftype" id="ftype" onchange="myFunction()">
-
-                                            <option value="Petrol">Petrol</option>
-                                            <option value="Diesel">Diesel</option>
-                                        </select>
-                                    </div>
-                                    @if ($errors->has('ftype'))
-                                        <span class="help-block">
-                                            <strong>{{ $errors->first('ftype') }}</strong>
                                         </span>
                                     @endif
                                 </div>
@@ -240,7 +224,7 @@
                                 {!! Form::label('amount', 'Amount(zwl)', array('class' => 'col-md-3 control-label')); !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('amount', NULL, array('id' => 'amount', 'class' => 'form-control', 'placeholder' => 'e.g. Amount of fuel to be paid for cash sales'), 'disabled') !!}
+                                        {!! Form::text('amount', NULL, array('id' => 'amount', 'class' => 'form-control', 'placeholder' => 'e.g. Amount of fuel to be paid for cash sales ')) !!}
                                         <div class="input-group-append">
                                             <label class="input-group-text" for="amount">
                                                 <i class="fa fa-fw fa-barcode" aria-hidden="true"></i>
@@ -255,6 +239,22 @@
                                 </div>
                             </div>
                         </div>
+                            <div class="form-group has-feedback row {{ $errors->has('ftype') ? ' has-error ' : '' }}">
+                                {!! Form::label('ftype', 'Fuel Type', array('class' => 'col-md-3 control-label')); !!}
+                                <div class="col-md-9">
+                                    <div class="input-group">
+                                        <select class="form-control" name="ftype" id="ftype">
+                                            <option value="Petrol">Petrol</option>
+                                            <option value="Diesel">Diesel</option>
+                                        </select>
+                                    </div>
+                                    @if ($errors->has('ftype'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('ftype') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
 
                             {!! Form::button('Request', array('class' => 'btn btn-success margin-bottom-1 mb-1 float-right','type' => 'submit' )) !!}
                             {!! Form::close() !!}
@@ -296,63 +296,6 @@
             allowClear:true,
         });
     </script>
-
-    <script>
-        const dieselPriceEl = document.querySelector("#dieselPrice");
-        const petrolPriceEl = document.querySelector("#petrolPrice");
-        const quantityEl = document.querySelector("#quantity");
-        const amountEl = document.querySelector("#amount");
-        const fuelEl = document.querySelector("#ftype");
-
-        quantityEl.addEventListener('keyup', function () {
-            if (fuelEl.value == "Petrol") {
-                amountEl.value =+ petrolPriceEl.textContent * quantityEl.value
-            } else if (fuelEl.value == "Diesel") {
-                amountEl.value =+ dieselPriceEl.textContent * quantityEl.value
-            } else {
-                amountEl.value =+ ""
-            }
-        })
-
-        function myFunction() {
-
-                    if (fuelEl.value == "Petrol") {
-                        amountEl.value =+ petrolPriceEl.textContent * quantityEl.value
-                    } else if (fuelEl.value == "Diesel") {
-                        amountEl.value =+ dieselPriceEl.textContent * quantityEl.value
-                    } else {
-                        amountEl.value =+ ""
-                    }
-            // })
-        }
-    </script>
- <script>
-    const dieselPriceEl = document.querySelector("#dieselPrice");
-    const petrolPriceEl = document.querySelector("#petrolPrice");
-    const quantityEl = document.querySelector("#quantity");
-    const amountEl = document.querySelector("#amount");
-    const fuelEl = document.querySelector(".ftype");
-
-    // fuelEl.addEventListener('change', (event) => {
-    //     console.log("hello")
-    //         // if (fuelEl.value == "Petrol") {
-    //         //     amountEl.value =+ petrolPriceEl.textContent * quantityEl.value
-    //         // } else if (fuelEl.value == "Diesel") {
-    //         //     amountEl.value =+ dieselPriceEl.textContent * quantityEl.value
-    //         // } else {
-    //         //     amountEl.value =+ ""
-    //         // }
-    // })
-
-    function myFunction() {
-        console.log("Hello")
-    }
-
-    // function changeFuel() {
-
-    // }
-</script>
-
 <script>
     function showDiv(divId, element)
     {

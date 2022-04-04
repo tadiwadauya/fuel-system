@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\CashSale;
 use App\Models\Transaction;
+use App\Models\NonAllocation;
+use App\Models\Allocation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,7 +91,32 @@ class CashSaleController extends Controller
 
         $customer = User::where('paynumber','=',$request->input('employee'))->firstOrFail();
 
+
+
+
         if($customer->allocation == 'Non-allocation') {
+
+            $allocation = NonAllocation::where('allocation', $request->input('allocation'))->firstorfail();
+
+
+            if ($allocation->balance == NULL) {
+                if ($request->input('quantity') <= $allocation->alloc_size) {
+                    $remaining = $allocation->alloc_size - $request->input('quantity');
+                    $allocation->balance = $remaining;
+                    $allocation->save();
+                } else {
+                    return back()->with('error', 'Fuel requested is more than the allocation available balance.');
+                }
+            } else{
+                if ($request->input('quantity') <= $allocation->balance) {
+                    $remaining = $allocation->balance - $request->input('quantity');
+                    $allocation->balance = $remaining;
+                    $allocation->save();
+                } else {
+                    return back()->with('error', 'Fuel requested is more than the allocation available balance.');
+                }
+            }
+
             $cashsale = CashSale::create([
                 'trans_code'   => $request->input('trans_code'),
                 'employee'     => $request->input('employee'),
@@ -103,11 +130,14 @@ class CashSaleController extends Controller
                 'created_at'   => $request->input('created_at'),
                 'amount'       => $request->input('amount'),
                 'invoice_number'       => $request->input('invoice_number'),
+                'allocation'             => $request->input('allocation'),
             ]);
 
             $cashsale->save();
         }
         elseif ($customer->allocation == 'Allocation') {
+
+
             $currentMonth = date('FY');
             $currentCashsales = DB::table('cash_sales')
                 ->select(DB::raw('sum(quantity) as currentfuel'))

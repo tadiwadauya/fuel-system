@@ -46,7 +46,6 @@ class FrequestController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create() {
-
         if(auth()->user()->allocation == 'Allocation'){
             $balance = Allocation::all()
 
@@ -65,7 +64,7 @@ class FrequestController extends Controller
             // }
 
 
-            $currentMonth = Carbon::now()->month('m');
+            $currentMonth = date('m');
 
             // $currentMonth = "0".Carbon::now()->month;
             // dd($currentMonth);
@@ -75,11 +74,10 @@ class FrequestController extends Controller
                         ->select(DB::raw('sum(quantity) as currentfuel'))
                         ->where('employee','=',Auth::user()->paynumber)
                         ->where('deleted_at','=',null)
-                        ->whereMonth('created_at', date('m'))
-                        ->whereYear('created_at', date('Y'))
+                        ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                        // ->whereRaw('created_at', '=', $currentMonth)
                         ->first();
                     // dd($currentCashsales);
-
                     $applicableCash = (($balance->alloc_size)*0.5) - $currentCashsales->currentfuel;
                 }else{
                     $applicableCash = 0;
@@ -90,8 +88,8 @@ class FrequestController extends Controller
                     ->select(DB::raw('sum(quantity) as currentfuel'))
                     ->where('employee','=',Auth::user()->paynumber)
                     ->where('deleted_at','=',null)
-                    ->whereMonth('created_at', date('m'))
-                    ->whereYear('created_at', date('Y'))
+                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    // ->whereRaw('created_at', '=', $currentMonth)
                     ->first();
 
                 $applicableCash = (($balance->alloc_size)*0.5) - $currentCashsales->currentfuel;
@@ -105,7 +103,6 @@ class FrequestController extends Controller
             ->where('deleted_at','=',null)
             ->sortByDesc('id')
             ->first();
-            // dd($balance->balance);
 
             if (Auth::user()->department == 'Diesel'){
                 $applicableCash = 0;
@@ -115,8 +112,7 @@ class FrequestController extends Controller
                     ->select(DB::raw('sum(quantity) as currentfuel'))
                     ->where('employee','=',Auth::user()->paynumber)
                     ->where('deleted_at','=',null)
-                    ->whereMonth('created_at', date('m'))
-                    ->whereYear('created_at', date('Y'))
+                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
                 $applicableCash = $balance->alloc_size- $currentCashsales->currentfuel;
@@ -125,7 +121,7 @@ class FrequestController extends Controller
             }
         }
 
-        // dd($applicableCash);
+        //dd($applicableCash);
 
         $fsetting = Fsetting::findOrFail(1);
 
@@ -172,15 +168,12 @@ class FrequestController extends Controller
                 }
             }
             elseif (auth()->user()->allocation == 'Non-allocation' OR $yuza->allocation == 'Non-allocation'){
-                if ($request->input('ftype') == 'Petrol') {
-                    if ($fsetting->petrol_available == 0) {
-                        return redirect()->back()->with('error', 'Sorry, our petrol reserves are currently low at the moment. We will not be doing any cash sales today.');
+                if ($request->input('alloc_bal') > $request->input('applicable')) {
+
+                   return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+
+
                     }
-                } elseif ($request->input('ftype') == 'Diesel') {
-                    if ($fsetting->diesel_available == 0) {
-                        return redirect()->back()->with('error', 'Sorry, our diesel reserves are currently low at the moment. We will not be doing any cash sales today.');
-                    }
-                }
             }
             else {
                 return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
@@ -231,97 +224,29 @@ class FrequestController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $frequest = new Frequest();
-        $frequest->request_type = $request->input('request_type');
-        $frequest->employee = $request->input('employee');
-        $frequest->quantity = $request->input('quantity');
-        $frequest->ftype = $request->input('ftype');
-        $frequest->status = 0;
+        // $frequest = Frequest::create([
+        //     'request_type'             => $request->input('request_type'),
+        //     'employee'             => $request->input('employee'),
+        //     'quantity'             => $request->input('quantity'),
+        //     'ftype'             => $request->input('ftype'),
+        //     'amount'             => $request->input('amount'),
+        //     'status'             => 0,
+        // ]);
 
-        if (is_numeric($request->input('amount'))) {
-            if($frequest->ftype == 'Petrol') {
-                $frequest->amount = $fsetting->petrol_price *  $frequest->quantity;
-            } else {
-                $frequest->amount = $fsetting->diesel_price *  $frequest->quantity;
-            }
-        } else {
-            $frequest->amount = $request->input('amount');
-        }
+        if ($request->input('request_type') == 'Cash Sale'){
+            $user = Auth::user();
 
-        if ($frequest->request_type == "Cash Sale") {
-            if ($user->allocation == "Allocation") {
-                $currentCashsales = DB::table('cash_sales')
+            $currentMonth = date('m');
+            $currentCashsales = DB::table('cash_sales')
                     ->select(DB::raw('sum(quantity) as currentfuel'))
-                    ->where('employee','=', $user->paynumber)
+                    ->where('employee','=',Auth::user()->paynumber)
                     ->where('deleted_at','=',null)
-                    ->whereMonth('created_at', date('m'))
-                    ->whereYear('created_at', date('Y'))
+                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    // ->whereRaw('created_at', '=', $currentMonth)
                     ->first();
 
-                $applicableFuel = (($user->alloc_size)*0.5) - $currentCashsales->currentfuel;
+            $applicableFuel = (($user->alloc_size)*0.5) - $currentCashsales->currentfuel;
 
-                if($user->user_role == 'Diesel'){
-                    $empPaynumber = $frequest->employee;
-
-                    $selectedUser = User::where('paynumber', '=', $empPaynumber)
-                        ->first();
-
-                        if ($selectedUser->allocation == "Allocation") {
-                            $cash = DB::table('cash_sales')
-                                ->select(DB::raw('sum(quantity) as currentfuel'))
-                                ->where('employee','=',$selectedUser->employee)
-                                ->where('deleted_at','=',null)
-                                ->whereMonth('created_at', date('m'))
-                                ->whereYear('created_at', date('Y'))
-                                // ->whereRaw('created_at', '=', $currentMonth)
-                                ->first();
-
-                            $applicable = (($selectedUser->alloc_size)*0.5) - $cash->currentfuel;
-
-                            if ($frequest->quantity <= $applicable){
-                                $frequest->save();
-                            } else {
-                                return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
-                            }
-                        } else {
-                            $balance = NonAllocation::all()
-                                ->where('paynumber','=', $selectedUser->employee)
-                                ->where('deleted_at','=',null)
-                                ->sortByDesc('id')
-                                ->first();
-
-                            $applicableCash = $balance->balance;
-
-                            if ($frequest->quantity <= $applicableCash){
-                                $frequest->save();
-                            } else {
-                                return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
-                            }
-                        }
-
-                } else {
-                    if($frequest->quantity <= $applicableFuel) {
-                        $frequest->save();
-                    } else {
-                        return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
-                    }
-                }
-            } else {
-                $balance = NonAllocation::all()
-                    ->where('paynumber','=',Auth::user()->paynumber)
-                    ->where('deleted_at','=',null)
-                    ->sortByDesc('id')
-                    ->first();
-
-                $applicableCash = $balance->balance;
-
-                if ($frequest->quantity <= $applicableCash){
-                    $frequest->save();
-                } else {
-                    return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
-                }
-            }
-        } else {
             $frequest = new Frequest();
             $frequest->request_type = $request->input('request_type');
             $frequest->employee = $request->input('employee');
@@ -329,70 +254,97 @@ class FrequestController extends Controller
             $frequest->ftype = $request->input('ftype');
             $frequest->status = 0;
 
-            // if ($request->input('amount'))
-            // {
-            //     $frequest->amount = $request->input('amount');
-            // }
+            if ($request->input('amount'))
+            {
+                $frequest->amount = $request->input('amount');
+            }
 
-            if (is_numeric($request->input('amount'))) {
-                if($frequest->ftype == 'Petrol') {
-                    $frequest->amount = $fsetting->petrol_price *  $frequest->quantity;
-                } else {
-                    $frequest->amount = $fsetting->diesel_price *  $frequest->quantity;
+            if(Auth::user()->user_role = 'Diesel'){
+                $empPaynumber = $frequest->employee;
+
+                $selectedUser = User::where('paynumber', '=', $empPaynumber)
+                ->where('allocation','=','Allocation')
+                ->first();
+
+                $cash = DB::table('cash_sales')
+                ->select(DB::raw('sum(quantity) as currentfuel'))
+                ->where('employee','=',$empPaynumber)
+                ->where('deleted_at','=',null)
+                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                // ->whereRaw('created_at', '=', $currentMonth)
+                ->first();
+
+                $applicable = (($selectedUser->alloc_size)*0.5) - $cash->currentfuel;
+
+                if($frequest->quantity <= $applicable){
+                    $frequest->save();
+                }else{
+                    return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
                 }
-            } else {
+            }
+            elseif($frequest->quantity <= $applicableFuel){
+                $frequest->save();
+            }else{
+                return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+            }
+        }else{
+            $frequest = new Frequest();
+            $frequest->request_type = $request->input('request_type');
+            $frequest->employee = $request->input('employee');
+            $frequest->quantity = $request->input('quantity');
+            $frequest->ftype = $request->input('ftype');
+            $frequest->status = 0;
+
+            if ($request->input('amount'))
+            {
                 $frequest->amount = $request->input('amount');
             }
 
             $frequest->save();
         }
 
+
         // $frequest->save();
 
-        if ($frequest->save()) {
-            $fmuser = DB::table('users')
-                ->where('position','=','Finance Director')
-                ->orWhere('position','=','Technical Director')
-                ->get(); //Systems Applications Administrator Finance Manager
-            /*$fmuser = User::where('position','=','Systems Applications Administrator')
-                ->orWhere('position','=','Systems Administrator')
-                ->get(); //Systems Applications Administrator Finance Manager*/
+        $fmuser = DB::table('users')
+            ->where('position','=','Finance Director')
+            ->orWhere('position','=','Technical Director')
+            ->get(); //Systems Applications Administrator Finance Manager
+        /*$fmuser = User::where('position','=','Systems Applications Administrator')
+            ->orWhere('position','=','Systems Administrator')
+            ->get(); //Systems Applications Administrator Finance Manager*/
 
-            if ($fmuser == null){
-                return redirect()->back()->with('error', 'Please check if the Finance Director and Technical Director Job position is assigned to anyone, because I could not find anyone.');
-            } else{
-                try {
-                    foreach ($fmuser as $authorizer){
-                        $applicant = User::where('paynumber','=',$request->input('employee'))->first(); //Systems Applications Administrator Finance Manager
+        if ($fmuser == null){
+            return redirect()->back()->with('error', 'Please check if the Finance Director and Technical Director Job position is assigned to anyone, because I could not find anyone.');
+        } else{
+            try {
+                foreach ($fmuser as $authorizer){
+                    $applicant = User::where('paynumber','=',$request->input('employee'))->first(); //Systems Applications Administrator Finance Manager
 
-                        $details = [
-                            'greeting' => 'Good day, ' . $authorizer->first_name,
-                            'body' => $applicant->first_name . ' ' . $applicant->last_name . ' has submitted a fuel request which needs your approval. ',
-                            'body1'=> $frequest->request_type,
-                            'body2' => $frequest->quantity.' of '.$frequest->ftype,
-                            'body3' => $frequest->amount,
-                            'body4' => 'You can approve this request by clicking Approve : ',
-                            'approveURL' => 'http://127.0.0.1:8000/whelsonfuel/frequests/emailapprove/'.$authorizer->name.'/'.$frequest->id,
-                            'previewURL' => 'http://127.0.0.1:8000/whelsonfuel/frequests/preview/'.$frequest->id,
-                            'rejectURL' => 'http://127.0.0.1:8000/whelsonfuel/frequests/emailreject/'.$authorizer->name.'/'.$frequest->id,
-                            'body5'=> 'To review the request please login, but you can reject this request straightaway:',
-                            'id' => $frequest->id
-                        ];
+                    $details = [
+                        'greeting' => 'Good day, ' . $authorizer->first_name,
+                        'body' => $applicant->first_name . ' ' . $applicant->last_name . ' has submitted a fuel request which needs your approval. ',
+                        'body1'=> $frequest->request_type,
+                        'body2' => $frequest->quantity.' of '.$frequest->ftype,
+                        'body3' => $frequest->amount,
+                        'body4' => 'You can approve this request by clicking Approve : ',
+                        'approveURL' => 'http://192.168.1.242:8080/whelsonfuel/frequests/emailapprove/'.$authorizer->name.'/'.$frequest->id,
+                        'previewURL' => 'http://192.168.1.242:8080/whelsonfuel/frequests/preview/'.$frequest->id,
+                        'rejectURL' => 'http://192.168.1.242:8080/whelsonfuel/frequests/emailreject/'.$authorizer->name.'/'.$frequest->id,
+                        'body5'=> 'To review the request please login, but you can reject this request straightaway:',
+                        'id' => $frequest->id
+                    ];
 
-                        Mail::to($authorizer->email)->send(new NewFuelRequestApproval($details));
-                    }
-
-                } catch (\Exception $exception){
-                    echo 'Error - '.$exception;
+                    Mail::to($authorizer->email)->send(new NewFuelRequestApproval($details));
                 }
-                //$fmuser->notify(new NewFuelRequestApproval($details));
+
+            } catch (\Exception $exception){
+                echo 'Error - '.$exception;
             }
-
-            return redirect()->back()->with('success', 'Your '.$request->input('ftype').' request has been processed.');
-        } else {
-            return redirect()->back()->with('error', 'Sorry, Failed.');
-
+            //$fmuser->notify(new NewFuelRequestApproval($details));
         }
+
+        return redirect()->back()->with('success', 'Your '.$request->input('ftype').' request has been processed.');
     }
 
     /**

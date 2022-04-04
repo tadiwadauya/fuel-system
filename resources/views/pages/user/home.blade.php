@@ -52,12 +52,20 @@
                                             </h4>
                                         </div> <!-- end card-body-->
                                     @else
-                                        <div class="card-body">
-                                            <h4 class="header-title">Allocation Size</h4>
-                                            <p class="card-title-desc">Capacity of your fuel allocation.</p>
+                                    <div class="card-body">
+                                        <h4 class="header-title">Cash sale Size</h4>
+                                        <p class="card-title-desc">Capacity of your fuel cash sale.</p>
 
-                                            <h4 class="header-title text-center text-info">You are currently set as a Non-allocation user. Please contact Diesel Department, if this is an error.</h4>
-                                        </div> <!-- end card-body-->
+                                        <div class="text-center" dir="ltr">
+                                            <label>
+                                                <input data-plugin="knob" data-width="225" data-height="225" data-min="0"
+                                                       data-fgColor="#00a7e1" data-displayPrevious=true data-angleOffset=0
+                                                       data-angleArc=360 data-readOnly=true value="{{$percentAllocation}}" data-thickness=".1" />
+                                            </label>
+                                        </div>
+                                        <h4 class="header-title text-center text-info">You have bought {{$usedAllocation}}L out of your {{$currentAllocation->alloc_size ?? 0}}L  {{date('F Y')}} cash sale
+                                        </h4>
+                                    </div> <!-- end card-body-->
                                     @endif
                                 </div> <!-- end card-->
                             </div> <!-- end col -->

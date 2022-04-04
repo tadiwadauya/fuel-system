@@ -24,6 +24,7 @@ Route::group(['middleware' => ['web', 'checkblocked']], function () {
     Route::get('/terms', 'TermsController@terms')->name('terms');
     Route::get('/getTitles/{department}','JobTitleController@getTitles')->name('jobtitles.fetch');
     Route::get('/getAllocations/{paynumber}','AllocationController@getAllocations')->name('allocations.fetch');
+    Route::get('/getAllocationss/{paynumber}','NonAllocationController@getAllocationss')->name('allocations.fetch');
     Route::get('/getContainers/{id}','InvoiceController@getContainers')->name('containers.fetch');
     Route::get('/getClientContainer/{id}','ContainerTransactionController@getContainer');
     Route::get('/markNotifsAsRead', function (){
@@ -193,6 +194,31 @@ Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'two
     Route::get('/executive-allocations', 'AllocationController@execAllocations');
 });
 
+
+Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'twostep', 'checkblocked']], function () {
+    Route::resource('/non_allocations/deleted', 'SoftDeleteNonAllocationController', [
+        'only' => [
+            'index', 'show', 'update', 'destroy',
+        ],
+    ])->middleware(['manadmin']);
+
+    Route::resource('non_allocations', 'NonAllocationController', [
+        'names' => [
+            'index'   => 'non_allocations',
+            'destroy' => 'non_allocation.destroy',
+        ],
+        'except' => [
+            'deleted',
+        ],
+    ]);
+
+    Route::get('/mynon_allocations','NonAllocationController@myNonAllocations');
+    Route::get('/bulknon_allocations', 'NonAllocationController@bulkCreateNonAllocations');
+    Route::get('/bulkprocesss', 'NonAllocationController@non_allocationsBatchers');
+    Route::get('/executive-non_allocations', 'NonAllocationController@execNonAllocations');
+});
+
+
 Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/transactions/deleted', 'SoftDeleteTransactionController', [
         'only' => [
@@ -305,6 +331,7 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
     Route::get('/myfuelrequests','FrequestController@myRequests');
     Route::get('/currentrequests','FrequestController@currentRequests');
     Route::get('/frequest-pdf/{id}','FrequestController@generatePdf')->name('generate.pdf');
+
 
 });
 

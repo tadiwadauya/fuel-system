@@ -136,6 +136,16 @@
                         <li><a href="{{url('/myallocations')}}">My Allocations </a></li>
                     </ul>
                 </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <div class="d-inline-block icons-sm mr-1"><i class="mdi mdi-chart-pie"></i></div>
+                        <span>Non Allocations</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{url('/non_allocations')}}"> Users </a></li>
+                        <li><a href="{{url('/mynon_allocations')}}">My Allocations </a></li>
+                    </ul>
+                </li>
 
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -373,6 +383,18 @@
 
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <div class="d-inline-block icons-sm mr-1"><i class="mdi mdi-chart-pie"></i></div>
+                        <span>Non Allocations</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{url('/non_allocations')}}"> Users </a></li>
+                        <li><a href="{{url('/mynon_allocations')}}">My Allocations </a></li>
+                    </ul>
+                </li>
+
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <div class="d-inline-block icons-sm mr-1"><i class="mdi mdi-fuel"></i></div>
                         <span>Fuel Issue</span>
                     </a>
@@ -570,6 +592,18 @@
                         <li><a href="{{url('/myallocations')}}">My Allocations </a></li>
                     </ul>
                 </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <div class="d-inline-block icons-sm mr-1"><i class="mdi mdi-chart-pie"></i></div>
+                        <span>Non Allocations</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{url('/non_allocations')}}"> Users </a></li>
+                        <li><a href="{{url('/mynon_allocations')}}">My Allocations </a></li>
+                    </ul>
+                </li>
+
 
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">

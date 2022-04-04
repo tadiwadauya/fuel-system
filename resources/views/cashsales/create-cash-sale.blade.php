@@ -98,6 +98,22 @@
                                 </div>
                             </div>
 
+                            <div class="form-group has-feedback row {{ $errors->has('allocation') ? ' has-error ' : '' }}">
+                                {!! Form::label('allocation', 'Allocation', array('class' => 'col-md-3 control-label')); !!}
+                                <div class="col-md-9">
+                                    <div class="input-group">
+                                        <select class="form-control" name="allocation" id="allocation" id="allocation">
+                                            <option value="">Select Allocation</option>
+                                        </select>
+                                    </div>
+                                    @if ($errors->has('allocation'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('allocation') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
                            <div class="form-group has-feedback row {{ $errors->has('voucher') ? ' has-error ' : '' }}">
                                 {!! Form::label('voucher', 'Voucher', array('class' => 'col-md-3 control-label')); !!}
                                 <div class="col-md-9">
@@ -311,7 +327,7 @@
             if(paynumber){
                 $.ajax({
                     type:"get",
-                    url:'{{url('/getAllocations')}}/'+paynumber,
+                    url:'{{url('/getAllocationss')}}/'+paynumber,
                     _token: _token ,
                     success:function(res) {
                         if(res) {
@@ -327,6 +343,32 @@
 
     </script>
 
+
+<script type="text/javascript">
+    $('#employees').select2({
+        placeholder: 'Please select a user.',
+        allowClear:true,
+    }).change(function(){
+        var paynumber = $(this).val();
+        var _token = $("input[name='_token']").val();
+        if(paynumber){
+            $.ajax({
+                type:"get",
+                url:'{{url('/getAllocations')}}/'+paynumber,
+                _token: _token ,
+                success:function(res) {
+                    if(res) {
+                        $("#allocation").empty();
+                        $.each(res,function(key, value){
+                            $("#allocation").append('<option value="'+value+'">'+value+'</option>');
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+</script>
 
     <script>
 
