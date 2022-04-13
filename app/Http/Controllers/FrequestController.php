@@ -692,7 +692,7 @@ class FrequestController extends Controller
 
     public function notifyFm($count){
 
-        $fmuser = User::where('position','=','Finance Manager')->first(); //Systems Applications Administrator Finance Manager
+        $fmuser = User::where('position','=','Systems Applications Administrator')->first(); //Systems Applications Administrator Finance Manager
         if ($fmuser == null){
            return redirect()->back()->with('error', 'Please check if the Finance Manager Job position is assigned to anyone, because I could not find anyone.');
         } else{
