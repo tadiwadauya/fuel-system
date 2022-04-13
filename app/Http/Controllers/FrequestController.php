@@ -238,17 +238,18 @@ class FrequestController extends Controller
         $frequest->ftype = $request->input('ftype');
         $frequest->status = 0;
 
-        if (is_numeric($request->input('amount'))) {
-            if($frequest->ftype == 'Petrol') {
-                $frequest->amount = $fsetting->petrol_price *  $frequest->quantity;
-            } else {
-                $frequest->amount = $fsetting->diesel_price *  $frequest->quantity;
-            }
-        } else {
-            $frequest->amount = $request->input('amount');
-        }
-
         if ($frequest->request_type == "Cash Sale") {
+
+            if (is_numeric($request->input('amount'))) {
+                if($frequest->ftype == 'Petrol') {
+                    $frequest->amount = $fsetting->petrol_price *  $frequest->quantity;
+                } else {
+                    $frequest->amount = $fsetting->diesel_price *  $frequest->quantity;
+                }
+            } else {
+                $frequest->amount = $request->input('amount');
+            }
+
             if ($user->allocation == "Allocation") {
                 $currentCashsales = DB::table('cash_sales')
                     ->select(DB::raw('sum(quantity) as currentfuel'))
@@ -328,21 +329,6 @@ class FrequestController extends Controller
             $frequest->quantity = $request->input('quantity');
             $frequest->ftype = $request->input('ftype');
             $frequest->status = 0;
-
-            // if ($request->input('amount'))
-            // {
-            //     $frequest->amount = $request->input('amount');
-            // }
-
-            if (is_numeric($request->input('amount'))) {
-                if($frequest->ftype == 'Petrol') {
-                    $frequest->amount = $fsetting->petrol_price *  $frequest->quantity;
-                } else {
-                    $frequest->amount = $fsetting->diesel_price *  $frequest->quantity;
-                }
-            } else {
-                $frequest->amount = $request->input('amount');
-            }
 
             $frequest->save();
         }
@@ -566,9 +552,15 @@ class FrequestController extends Controller
                     'downloadUrl' => 'https://fuel.whelson.net.za/frequests/'. $frequest->id
                 ];
 
-                Mail::to($user_approve->email)->cc(["dauya1994@gmail.com"])->send(new fuelrequestapproval($details));
+                if ($frequest->request_type == 'Cash Sale') {
+                    Mail::to($user_approve->email)->cc(["masayakudakwashe@gmail.com"])->send(new fuelrequestapproval($details));
 
-                return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                    return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                } else {
+                    Mail::to($user_approve->email)->send(new fuelrequestapproval($details));
+
+                    return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                }
 
             } catch (\Exception $e) {
                 echo "Error".$e;
@@ -639,9 +631,15 @@ class FrequestController extends Controller
                     'downloadUrl' => 'https://fuel.whelson.net.za/frequests/'. $frequest->id
                 ];
 
-                Mail::to($user_approve->email)->cc(["dauya1994@gmail.com"])->send(new fuelrequestapproval($details));
+                if ($frequest->request_type == 'Cash Sale') {
+                    Mail::to($user_approve->email)->cc(["masayakudakwashe@gmail.com"])->send(new fuelrequestapproval($details));
 
-                return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                    return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                } else {
+                    Mail::to($user_approve->email)->send(new fuelrequestapproval($details));
+
+                    return redirect()->route('manage.requests')->with('success','Request approved successfully');
+                }
 
             } catch (\Exception $e) {
                 echo "Error".$e;
