@@ -55,7 +55,9 @@ class UserController extends Controller
             $petrolAllocationsData = [0,0,0,0,0,0,0,0,0,0,0,0];
 
             foreach($petrolcash as $order){
-                $petrolCashData[$order->monthKey-1] = number_format($order->sums, 2,'.', '');
+                if($order->months != null){
+                    $petrolCashData[$order->monthKey-1] = number_format($order->sums, 2,'.', '');
+                }
             }
 
             foreach($petrollitres as $order){
@@ -82,11 +84,15 @@ class UserController extends Controller
                 ->orderBy('created_at', 'ASC')
                 ->get();
 
+                // dd($dieselcash);
+
             $dieselCashData = [0,0,0,0,0,0,0,0,0,0,0,0];
             $dieselAllocationsdata = [0,0,0,0,0,0,0,0,0,0,0,0];
 
             foreach($dieselcash as $order){
-                $dieselCashData[$order->monthKey-1] = number_format($order->sums, 2,'.', '');
+                if($order->months != null){
+                    $dieselCashData[$order->monthKey-1] = number_format($order->sums, 2,'.', '');
+                }
             }
 
             foreach($diesellitres as $order){
