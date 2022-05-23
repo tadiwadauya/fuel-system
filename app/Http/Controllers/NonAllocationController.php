@@ -169,14 +169,21 @@ class NonAllocationController extends Controller
 
             $alloc = $user->paynumber . $month;
 
+            if($user->paynumber == '791') {
+                $alloc_size = 120;
+            }else {
+                $alloc_size = 60;
+            }
+
             $allocation = NonAllocation::create([
                 'user_id' => $user->id,
                 'paynumber' => $user->paynumber,
                 'allocation' => $alloc,
-                'alloc_size' => 60,
+                'alloc_size' => $alloc_size,
             ]);
 
             $allocation->save();
+            
         }
 
         $directors = User::where('allocation', '=', 'Director')
