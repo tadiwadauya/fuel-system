@@ -180,10 +180,11 @@ class NonAllocationController extends Controller
                 'paynumber' => $user->paynumber,
                 'allocation' => $alloc,
                 'alloc_size' => $alloc_size,
+                'balance' => $alloc_size,
             ]);
 
             $allocation->save();
-            
+
         }
 
         $directors = User::where('allocation', '=', 'Director')
