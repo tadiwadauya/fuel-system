@@ -224,11 +224,13 @@ class QuotationController extends Controller
                 'created_at' => $quotation->created_at
             ];
 
-            if ($quotation->email_cc == null){
-                Mail::to($quotation->email)->send(new FuelQuotation($details));
-            } elseif ($quotation->email_cc != null){
-                Mail::to($quotation->email)->cc($quotation->email_cc)->send(new FuelQuotation($details));
-            }
+            Mail::to($quotation->email)->send(new FuelQuotation($details));
+
+            // if ($quotation->email_cc == null){
+            //     Mail::to($quotation->email)->send(new FuelQuotation($details));
+            // } elseif ($quotation->email_cc != null){
+            //     Mail::to($quotation->email)->cc($quotation->email_cc)->send(new FuelQuotation($details));
+            // }
 
         } catch (\Exception $exception){
             echo 'Error - '.$exception;

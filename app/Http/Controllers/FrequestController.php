@@ -330,7 +330,23 @@ class FrequestController extends Controller
             $frequest->ftype = $request->input('ftype');
             $frequest->status = 0;
 
-            $frequest->save();
+            if($user->allocation == "Allocation") {
+                $balance = Allocation::all()
+                    ->where('paynumber','=', $user->paynumber)
+                    ->where('deleted_at','=',null)
+                    ->sortByDesc('id')
+                    ->first();
+
+                $applicableFuel = $balance->balance;
+
+                if($applicableFuel >= $frequest->quantity) {
+                    $frequest->save();
+                } else {
+                    return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+                }  
+            } else {
+                return redirect()->back()->with('error', 'Sorry we cannot find your allocation.');
+            }
         }
 
         // $frequest->save();
@@ -553,7 +569,7 @@ class FrequestController extends Controller
                 ];
 
                 if ($frequest->request_type == 'Cash Sale') {
-                    Mail::to($user_approve->email)->cc(["masayakudakwashe@gmail.com"])->send(new fuelrequestapproval($details));
+                    Mail::to($user_approve->email)->cc(["cashbooks@whelson.co.zw"])->send(new fuelrequestapproval($details));
 
                     return redirect()->route('manage.requests')->with('success','Request approved successfully');
                 } else {
@@ -791,6 +807,10 @@ class FrequestController extends Controller
             echo $e->getMessage();
 
         }
+    }
+    
+    public function test() {
+        return view('fuelrequests.test');
     }
 
 }

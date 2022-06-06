@@ -5,7 +5,6 @@
  *Date: 8/11/2020
  *Time: 3:32 PM
  */
-
 ?>
 @extends('layouts.app')
 
@@ -14,12 +13,11 @@
 @endsection
 
 @section('template_linked_css')
-
-    <link href="{{ asset('css/select2.min.css')}}" rel="stylesheet" />
+    <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
     <!-- datepicker -->
-    <link href="{{asset('assets/libs/air-datepicker/css/datepicker.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/air-datepicker/css/datepicker.min.css') }}" rel="stylesheet" type="text/css" />
 
-    <link href="{{asset('assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css')}}" rel="stylesheet" />
+    <link href="{{ asset('assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css') }}" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -29,7 +27,7 @@
                 <div class="col-md-8">
                     <h4 class="page-title mb-1">Quotations</h4>
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{url('/quotations')}}">Quotations</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url('/quotations') }}">Quotations</a></li>
                         <li class="breadcrumb-item active">Add Quotation</li>
                     </ol>
                 </div>
@@ -37,7 +35,7 @@
                 <div class="col-md-4">
                     <div class="float-right d-none d-md-block">
                         <div>
-                            <a class="btn btn-light btn-rounded" href="{{url('/quotations')}}" type="button">
+                            <a class="btn btn-light btn-rounded" href="{{ url('/quotations') }}" type="button">
                                 <i class="mdi mdi-keyboard-backspace mr-1"></i>Back to Quotations
                             </a>
                         </div>
@@ -55,15 +53,15 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                            {!! Form::open(array('route' => 'quotations.store', 'method' => 'POST', 'role' => 'form', 'class' => 'needs-validation')) !!}
+                            {!! Form::open(['route' => 'quotations.store', 'method' => 'POST', 'role' => 'form', 'class' => 'needs-validation']) !!}
 
                             {!! csrf_field() !!}
 
                             <div class="form-group has-feedback row {{ $errors->has('client') ? ' has-error ' : '' }}">
-                                {!! Form::label('client', 'Client', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('client', 'Client', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('client', NULL, array('id' => 'client', 'class' => 'form-control', 'placeholder' => 'e.g Walk-in Customer')) !!}
+                                        {!! Form::text('client', null, ['id' => 'client', 'class' => 'form-control', 'placeholder' => 'e.g Walk-in Customer']) !!}
                                     </div>
                                     @if ($errors->has('client'))
                                         <span class="help-block">
@@ -74,10 +72,10 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('email') ? ' has-error ' : '' }}">
-                                {!! Form::label('email', 'Email (Optional)', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('email', 'Email (Optional)', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::email('email', NULL, array('id' => 'email', 'class' => 'form-control', 'placeholder' => 'e.g trying@email.co.zw')) !!}
+                                        {!! Form::email('email', null, ['id' => 'email', 'class' => 'form-control', 'placeholder' => 'e.g trying@email.co.zw']) !!}
                                     </div>
                                     @if ($errors->has('email'))
                                         <span class="help-block">
@@ -88,10 +86,10 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('email_cc') ? ' has-error ' : '' }}">
-                                {!! Form::label('email_cc', 'Email CC (Optional)', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('email_cc', 'Email CC (Optional)', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('email_cc', NULL, array('id' => 'email_cc', 'class' => 'form-control', 'placeholder' => 'e.g cctester@email.co.zw')) !!}
+                                        {!! Form::text('email_cc', null, ['id' => 'email_cc', 'class' => 'form-control', 'placeholder' => 'e.g cctester@email.co.zw']) !!}
                                     </div>
                                     @if ($errors->has('email_cc'))
                                         <span class="help-block">
@@ -102,10 +100,10 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('price') ? ' has-error ' : '' }}">
-                                {!! Form::label('price', 'Price', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('price', 'Price', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('price', NULL, array('id' => 'price', 'class' => 'form-control','pattern'=>'^\d{1,3}*(\.\d+)?$', 'value'=>"", 'data-type'=>"currency", 'placeholder' => 'e.g. 31.31')) !!}
+                                        {!! Form::text('price', null, ['id' => 'price', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31']) !!}
 
                                     </div>
                                     @if ($errors->has('price'))
@@ -117,10 +115,10 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('quantity') ? ' has-error ' : '' }}">
-                                {!! Form::label('quantity', 'Quantity', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('quantity', 'Quantity', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('quantity', NULL, array('id' => 'quantity', 'class' => 'form-control','pattern'=>'^\d{1,3}*(\.\d+)?$', 'value'=>"", 'data-type'=>"currency", 'placeholder' => 'Amount in Litres e.g. 80')) !!}
+                                        {!! Form::text('quantity', null, ['id' => 'quantity', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'Amount in Litres e.g. 80']) !!}
 
                                     </div>
                                     @if ($errors->has('quantity'))
@@ -132,7 +130,7 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('amount') ? ' has-error ' : '' }}">
-                                {!! Form::label('amount', 'Amount', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('amount', 'Amount', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -141,7 +139,7 @@
                                                 <option value="ZWL">ZWL</option>
                                             </select>
                                         </div>
-                                        {!! Form::text('amount', NULL, array('id' => 'amount', 'class' => 'form-control','pattern'=>'^\d{1,3}*(\.\d+)?$', 'value'=>"", 'data-type'=>"currency", 'placeholder' => 'e.g. 31.31')) !!}
+                                        {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31']) !!}
 
                                     </div>
                                     @if ($errors->has('amount'))
@@ -153,10 +151,10 @@
                             </div>
 
                             <div class="form-group has-feedback row {{ $errors->has('notes') ? ' has-error ' : '' }}">
-                                {!! Form::label('notes', 'Notes', array('class' => 'col-md-3 control-label')); !!}
+                                {!! Form::label('notes', 'Notes', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::textarea('notes', NULL, array('id' => 'notes', 'class' => 'form-control', 'rows'=>'5', 'placeholder' => 'e.g. Any additional infomation, if any')) !!}
+                                        {!! Form::textarea('notes', null, ['id' => 'notes', 'class' => 'form-control', 'rows' => '5', 'placeholder' => 'e.g. Any additional infomation, if any']) !!}
 
                                     </div>
                                     @if ($errors->has('notes'))
@@ -167,9 +165,9 @@
                                 </div>
                             </div>
 
-                            <input type="hidden" name="done_by" value="{{auth()->user()->name}}">
+                            <input type="hidden" name="done_by" value="{{ auth()->user()->name }}">
 
-                            {!! Form::button('Add Quotation', array('class' => 'btn btn-success margin-bottom-1 mb-1 float-right','type' => 'submit' )) !!}
+                            {!! Form::button('Add Quotation', ['class' => 'btn btn-success margin-bottom-1 mb-1 float-right', 'type' => 'submit']) !!}
                             {!! Form::close() !!}
                         </div>
                     </div>
@@ -180,25 +178,22 @@
 @endsection
 
 @section('footer_scripts')
-
-    <script src="{{ asset('js/select2.min.js')}}"></script>
-    <script src="{{asset('assets/libs/air-datepicker/js/datepicker.min.js')}}"></script>
-    <script src="{{asset('assets/libs/air-datepicker/js/i18n/datepicker.en.js')}}"></script>
-    <script src="{{asset('assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js')}}"></script>
-    <script src="{{asset('assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js')}}"></script>
+    <script src="{{ asset('js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/air-datepicker/js/datepicker.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/air-datepicker/js/i18n/datepicker.en.js') }}"></script>
+    <script src="{{ asset('assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js') }}"></script>
 
     <script>
-        $('#quantity, #price').keyup(function () {
+        $('#quantity, #price').keyup(function() {
             var qua = $('#quantity').val() || 0;
             var pri = $('#price').val() || 0;
 
             $('#amount').val((qua * pri).toFixed(2));
         });
-
     </script>
 
     <script>
-
         $("input[data-type='currency']").on({
             keyup: function() {
                 formatCurrency($(this));
@@ -221,7 +216,9 @@
             var input_val = input.val();
 
             // don't validate empty input
-            if (input_val === "") { return; }
+            if (input_val === "") {
+                return;
+            }
 
             // original length
             var original_len = input_val.length;
