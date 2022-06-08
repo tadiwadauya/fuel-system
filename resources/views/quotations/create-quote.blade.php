@@ -139,7 +139,7 @@
                                                 <option value="ZWL">ZWL</option>
                                             </select>
                                         </div>
-                                        {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31']) !!}
+                                        {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31', 'disabled']) !!}
 
                                     </div>
                                     @if ($errors->has('amount'))
@@ -276,5 +276,27 @@
             caret_pos = updated_len - original_len + caret_pos;
             input[0].setSelectionRange(caret_pos, caret_pos);
         }
+    </script>
+    <script>
+        const priceEl = document.querySelector('#price');
+        const quantityEl = document.querySelector('#quantity');
+        const amountEl = document.querySelector('#amount');
+        const currencyEl = document.querySelector('#currency');
+
+        quantityEl.addEventListener('keyup', function() {
+            if (priceEl.textContent != "") {
+                amountEl.textContent = +priceEl.textContent * quantityEl.textContent
+            } else {
+                amountEl.textContent = +""
+            }
+        })
+
+        priceEl.addEventListener('keyup', function() {
+            if (priceEl.textContent != "") {
+                amountEl.textContent = +priceEl.textContent * quantityEl.textContent
+            } else {
+                amountEl.textContent = +""
+            }
+        })
     </script>
 @endsection
