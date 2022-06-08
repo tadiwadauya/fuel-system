@@ -55,15 +55,6 @@ class FrequestController extends Controller
                 ->where('deleted_at', '=', null)
                 ->sortByDesc('id')
                 ->first();
-            // dd($balance);
-
-            // if (Auth::user()-> department != 'Diesel') {
-            //     if ($balance == null) {
-            //         $balance = 0;
-            //     }
-            // } else {
-            //     $balance = 0;
-            // }
 
 
             $currentMonth = Carbon::now()->month('m');
@@ -305,6 +296,22 @@ class FrequestController extends Controller
                     }
                 }
             } else {
+                $balance = NonAllocation::all()
+                    ->where('paynumber', '=', Auth::user()->paynumber)
+                    ->where('deleted_at', '=', null)
+                    ->sortByDesc('id')
+                    ->first();
+
+                $applicableCash = $balance->balance;
+
+                if ($frequest->quantity <= $applicableCash) {
+                    $frequest->save();
+                } else {
+                    return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+                }
+            }
+        } else {
+            if ($user->allocation == 'Non-allocation') {
                 if ($user->user_role == 'Diesel') {
                     $empPaynumber = $frequest->employee;
 
@@ -312,37 +319,64 @@ class FrequestController extends Controller
                         ->first();
 
                     if ($selectedUser->allocation == "Allocation") {
-                        $balance = NonAllocation::all()
+                        $balance = Allocation::all()
                             ->where('paynumber', '=', $selectedUser->paynumber)
                             ->where('deleted_at', '=', null)
                             ->sortByDesc('id')
                             ->first();
 
-                        $applicableCash = $balance->balance;
+                        $applicableFuel = $balance->balance;
 
-                        if ($frequest->quantity <= $applicableCash) {
+                        if ($frequest->quantity <= $applicableFuel) {
                             $frequest->save();
                         } else {
                             return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
                         }
                     }
+                }
+            } else {
+                $balance = Allocation::all()
+                    ->where('paynumber', '=', $user->paynumber)
+                    ->where('deleted_at', '=', null)
+                    ->sortByDesc('id')
+                    ->first();
+
+                $applicableFuel = $balance->balance;
+
+                if ($applicableFuel >= $frequest->quantity) {
+                    $frequest->save();
                 } else {
-                    $balance = NonAllocation::all()
-                        ->where('paynumber', '=', Auth::user()->paynumber)
-                        ->where('deleted_at', '=', null)
-                        ->sortByDesc('id')
-                        ->first();
-
-                    $applicableCash = $balance->balance;
-
-                    if ($frequest->quantity <= $applicableCash) {
-                        $frequest->save();
-                    } else {
-                        return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
-                    }
+                    return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
                 }
             }
+
+            // $frequest = new Frequest();
+            // $frequest->request_type = $request->input('request_type');
+            // $frequest->employee = $request->input('employee');
+            // $frequest->quantity = $request->input('quantity');
+            // $frequest->ftype = $request->input('ftype');
+            // $frequest->status = 0;
+
+            // if ($user->allocation == "Allocation") {
+            //     $balance = Allocation::all()
+            //         ->where('paynumber', '=', $user->paynumber)
+            //         ->where('deleted_at', '=', null)
+            //         ->sortByDesc('id')
+            //         ->first();
+
+            //     $applicableFuel = $balance->balance;
+
+            //     if ($applicableFuel >= $frequest->quantity) {
+            //         $frequest->save();
+            //     } else {
+            //         return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+            //     }
+            // } else {
+            //     return redirect()->back()->with('error', 'Sorry we cannot find your allocation.');
+            // }
         }
+
+        // $frequest->save();
 
         if ($frequest->save()) {
             $fmuser = DB::table('users')
