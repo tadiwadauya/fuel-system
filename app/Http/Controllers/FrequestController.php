@@ -335,18 +335,41 @@ class FrequestController extends Controller
                     }
                 }
             } else {
-                $balance = Allocation::all()
-                    ->where('paynumber', '=', $user->paynumber)
-                    ->where('deleted_at', '=', null)
-                    ->sortByDesc('id')
-                    ->first();
+                if ($user->user_role == 'Diesel') {
+                    $empPaynumber = $frequest->employee;
 
-                $applicableFuel = $balance->balance;
+                    $selectedUser = User::where('paynumber', '=', $empPaynumber)
+                        ->first();
 
-                if ($applicableFuel >= $frequest->quantity) {
-                    $frequest->save();
-                } else {
-                    return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+                    if ($selectedUser->allocation == "Allocation") {
+                        $balance = Allocation::all()
+                            ->where('paynumber', '=', $selectedUser->paynumber)
+                            ->where('deleted_at', '=', null)
+                            ->sortByDesc('id')
+                            ->first();
+
+                        $applicableFuel = $balance->balance;
+
+                        if ($frequest->quantity <= $applicableFuel) {
+                            $frequest->save();
+                        } else {
+                            return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
+                        }
+                    }
+                } else{
+                    $balance = Allocation::all()
+                        ->where('paynumber', '=', $user->paynumber)
+                        ->where('deleted_at', '=', null)
+                        ->sortByDesc('id')
+                        ->first();
+
+                    $applicableFuel = $balance->balance;
+
+                    if ($applicableFuel >= $frequest->quantity) {
+                        $frequest->save();
+                    } else {
+                        return redirect()->back()->with('error', 'Sorry, this is beyond your prescribed limit for this month. We\'re just going to ignore that request.');
+                    }
                 }
             }
 

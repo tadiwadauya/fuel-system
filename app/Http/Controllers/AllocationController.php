@@ -179,6 +179,7 @@ class AllocationController extends Controller
                 'paynumber' => $user->paynumber,
                 'allocation' => $alloc,
                 'alloc_size' => $user->alloc_size,
+                'balance' => $user->alloc_size,
             ]);
 
             $allocation->save();
