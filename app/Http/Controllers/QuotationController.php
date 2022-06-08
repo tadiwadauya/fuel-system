@@ -188,10 +188,10 @@ class QuotationController extends Controller
     }
 
     public function generateQuotePdf($id){
-    $quotation = Quotation::findOrFail($id);
+        $quotation = Quotation::findOrFail($id);
 
-    $pdf = \PDF::loadView('quotations.form', compact('quotation'));
-    return $pdf->stream($quotation->quote_num.".pdf");
+        $pdf = \PDF::loadView('quotations.form', compact('quotation'));
+        return $pdf->stream($quotation->quote_num.".pdf");
     }
 
     public function showQuoteForm($id){
