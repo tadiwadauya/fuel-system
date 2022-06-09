@@ -22,12 +22,12 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['web', 'checkblocked']], function () {
     Route::get('/', 'WelcomeController@welcome')->name('welcome');
     Route::get('/terms', 'TermsController@terms')->name('terms');
-    Route::get('/getTitles/{department}','JobTitleController@getTitles')->name('jobtitles.fetch');
-    Route::get('/getAllocations/{paynumber}','AllocationController@getAllocations')->name('allocations.fetch');
-    Route::get('/getAllocationss/{paynumber}','NonAllocationController@getAllocationss')->name('allocations.fetch');
-    Route::get('/getContainers/{id}','InvoiceController@getContainers')->name('containers.fetch');
-    Route::get('/getClientContainer/{id}','ContainerTransactionController@getContainer');
-    Route::get('/markNotifsAsRead', function (){
+    Route::get('/getTitles/{department}', 'JobTitleController@getTitles')->name('jobtitles.fetch');
+    Route::get('/getAllocations/{paynumber}', 'AllocationController@getAllocations')->name('allocations.fetch');
+    Route::get('/getAllocationss/{paynumber}', 'NonAllocationController@getAllocationss')->name('allocations.fetch');
+    Route::get('/getContainers/{id}', 'InvoiceController@getContainers')->name('containers.fetch');
+    Route::get('/getClientContainer/{id}', 'ContainerTransactionController@getContainer');
+    Route::get('/markNotifsAsRead', function () {
         auth()->user()->unreadNotifications->markAsRead();
     });
     // Route to show user avatar
@@ -59,7 +59,7 @@ Route::group(['middleware' => ['web', 'activity', 'checkblocked']], function () 
 });
 
 // Registered and Activated User Routes
-Route::group(['middleware' => ['auth','checkpass', 'activated', 'activity', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'checkpass', 'activated', 'activity', 'checkblocked']], function () {
 
     // Activation Routes
     Route::get('/activation-required', ['uses' => 'Auth\ActivateController@activationRequired'])->name('activation-required');
@@ -67,7 +67,7 @@ Route::group(['middleware' => ['auth','checkpass', 'activated', 'activity', 'che
 });
 
 // Registered and Activated User Routes
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
 
     //  Homepage Route - Redirect based on user role is in controller.
     Route::get('/home', ['as' => 'public.home',   'uses' => 'UserController@index']);
@@ -80,7 +80,7 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
 });
 
 // Registered, activated, and is current user routes.
-Route::group(['middleware' => ['auth', 'checkpass','activated', 'currentUser', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'checkpass', 'activated', 'currentUser', 'activity', 'twostep', 'checkblocked']], function () {
 
     // User Profile and Account Routes
     Route::resource(
@@ -113,7 +113,7 @@ Route::group(['middleware' => ['auth', 'checkpass','activated', 'currentUser', '
 });
 
 // Registered, activated, and is admin routes.
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/users/deleted', 'SoftDeletesController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -143,7 +143,7 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
     Route::get('active-users', 'AdminDetailsController@activeUsers');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('departments', 'DepartmentController', [
         'names' => [
@@ -154,10 +154,9 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
             'deleted',
         ],
     ]);
-
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','checkpass',  'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'checkpass',  'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('jobtitles', 'JobTitleController', [
         'names' => [
@@ -168,10 +167,9 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','checkpass',  'ac
             'deleted',
         ],
     ]);
-
 });
 
-Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/allocations/deleted', 'SoftDeleteAllocationController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -188,14 +186,14 @@ Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'two
         ],
     ]);
 
-    Route::get('/myallocations','AllocationController@myAllocations');
+    Route::get('/myallocations', 'AllocationController@myAllocations');
     Route::get('/bulkallocations', 'AllocationController@bulkCreateAllocations');
     Route::get('/bulkprocess', 'AllocationController@allocationsBatcher');
     Route::get('/executive-allocations', 'AllocationController@execAllocations');
 });
 
 
-Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/non_allocations/deleted', 'SoftDeleteNonAllocationController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -212,14 +210,14 @@ Route::group(['middleware' => ['auth', 'activated', 'checkpass','activity', 'two
         ],
     ]);
 
-    Route::get('/mynon_allocations','NonAllocationController@myNonAllocations');
+    Route::get('/mynon_allocations', 'NonAllocationController@myNonAllocations');
     Route::get('/bulknon_allocations', 'NonAllocationController@bulkCreateNonAllocations');
     Route::get('/bulkprocesss', 'NonAllocationController@non_allocationsBatchers');
     Route::get('/executive-non_allocations', 'NonAllocationController@execNonAllocations');
 });
 
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/transactions/deleted', 'SoftDeleteTransactionController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -236,14 +234,14 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
         ],
     ]);
 
-    Route::get('/transaction-pdf/{id}','TransactionController@generatePdf')->name('generate.transpdf');
+    Route::get('/transaction-pdf/{id}', 'TransactionController@generatePdf')->name('generate.transpdf');
 
-    Route::get('/mytransactions','TransactionController@myTransactions');
+    Route::get('/mytransactions', 'TransactionController@myTransactions');
 
-    Route::get('/current-trans','TransactionController@currentTransactions');
+    Route::get('/current-trans', 'TransactionController@currentTransactions');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/cashsales/deleted', 'SoftDeleteSaleController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -260,45 +258,44 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
         ],
     ]);
 
-    Route::get('/cashsale-pdf/{id}','CashSaleController@generatePdf')->name('generate.salepdf');
+    Route::get('/cashsale-pdf/{id}', 'CashSaleController@generatePdf')->name('generate.salepdf');
 
-    Route::get('/mycashsales','CashSaleController@myCashSales');
+    Route::get('/mycashsales', 'CashSaleController@myCashSales');
 
-    Route::get('/current-cash','CashSaleController@currentCashSales');
+    Route::get('/current-cash', 'CashSaleController@currentCashSales');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
 
-    Route::get('/allocations-report','ReportsController@allocationsForm')->middleware(['mandieadmin']);
-    Route::post('/allocations-report','ReportsController@getAllocations')->name('allocations.report')->middleware(['mandieadmin']);
+    Route::get('/allocations-report', 'ReportsController@allocationsForm')->middleware(['mandieadmin']);
+    Route::post('/allocations-report', 'ReportsController@getAllocations')->name('allocations.report')->middleware(['mandieadmin']);
 
-    Route::get('/all-allocations-report','ReportsController@allAllocationsForm')->middleware(['mandieadmin']);
-    Route::post('/all-allocations-report','ReportsController@getAllAllocations')->name('allallocations.report')->middleware(['mandieadmin']);
+    Route::get('/all-allocations-report', 'ReportsController@allAllocationsForm')->middleware(['mandieadmin']);
+    Route::post('/all-allocations-report', 'ReportsController@getAllAllocations')->name('allallocations.report')->middleware(['mandieadmin']);
 
-    Route::get('/allocations-balances','ReportsController@allocationsBalancesForm')->middleware(['mandieadmin']);
-    Route::post('/allocations-balances','ReportsController@getAllocationsBalances')->name('allocations.balance')->middleware(['mandieadmin']);
+    Route::get('/allocations-balances', 'ReportsController@allocationsBalancesForm')->middleware(['mandieadmin']);
+    Route::post('/allocations-balances', 'ReportsController@getAllocationsBalances')->name('allocations.balance')->middleware(['mandieadmin']);
 
-    Route::get('/cash-sale-report','ReportsController@cashSalesForm')->middleware(['mandieadmin']);
-    Route::post('/cash-sale-report','ReportsController@getCashSales')->name('cashsales.report')->middleware(['mandieadmin']);
+    Route::get('/cash-sale-report', 'ReportsController@cashSalesForm')->middleware(['mandieadmin']);
+    Route::post('/cash-sale-report', 'ReportsController@getCashSales')->name('cashsales.report')->middleware(['mandieadmin']);
 
-    Route::get('/cashsale-pdf/{id}','CashSaleController@generatePdf')->name('generate.salepdf');
+    Route::get('/cashsale-pdf/{id}', 'CashSaleController@generatePdf')->name('generate.salepdf');
 
-    Route::get('/invoices-report','ReportsController@invoicesForm')->middleware(['manadmin']);
-    Route::post('/invoices-report','ReportsController@getInvoices')->name('invoices.report')->middleware(['manadmin']);
+    Route::get('/invoices-report', 'ReportsController@invoicesForm')->middleware(['manadmin']);
+    Route::post('/invoices-report', 'ReportsController@getInvoices')->name('invoices.report')->middleware(['manadmin']);
 
-    Route::get('/containers-report','ReportsController@containersForm')->middleware(['manadmin']);
-    Route::post('/containers-report','ReportsController@getContainers')->name('containers.report')->middleware(['manadmin']);
+    Route::get('/containers-report', 'ReportsController@containersForm')->middleware(['manadmin']);
+    Route::post('/containers-report', 'ReportsController@getContainers')->name('containers.report')->middleware(['manadmin']);
 
-    Route::get('/container-transaction-report','ReportsController@containerTransactionForm')->middleware(['manadmin']);
-    Route::post('/container-transaction-report','ReportsController@containertransactionPost')->name('containers.transactactor')->middleware(['manadmin']);
-    Route::get('/get-user-container-name/{client}','ReportsController@getUserContainer');
+    Route::get('/container-transaction-report', 'ReportsController@containerTransactionForm')->middleware(['manadmin']);
+    Route::post('/container-transaction-report', 'ReportsController@containertransactionPost')->name('containers.transactactor')->middleware(['manadmin']);
+    Route::get('/get-user-container-name/{client}', 'ReportsController@getUserContainer');
 
-    Route::get('/stock-issue-report','ReportsController@stockIssuesForm')->middleware(['mandieadmin']);
-    Route::post('/stock-issue-report','ReportsController@getStockIssues')->name('stockissues.report')->middleware(['mandieadmin']);
-
+    Route::get('/stock-issue-report', 'ReportsController@stockIssuesForm')->middleware(['mandieadmin']);
+    Route::post('/stock-issue-report', 'ReportsController@getStockIssues')->name('stockissues.report')->middleware(['mandieadmin']);
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/frequests/deleted', 'SoftDeleteFuelRequestController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -315,38 +312,36 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
         ],
     ]);
 
-    Route::get('/manage-requests','FrequestController@manageFuelRequests')->name('manage.requests')->middleware(['manadmin']);
-    Route::get('/approved-requests','FrequestController@getApprovedRequests')->name('approved.requests')->middleware(['mandieadmin']);
-    Route::get('/pending-requests','FrequestController@getPendingRequests')->name('pending.requests');
+    Route::get('/manage-requests', 'FrequestController@manageFuelRequests')->name('manage.requests')->middleware(['manadmin']);
+    Route::get('/approved-requests', 'FrequestController@getApprovedRequests')->name('approved.requests')->middleware(['mandieadmin']);
+    Route::get('/pending-requests', 'FrequestController@getPendingRequests')->name('pending.requests');
     Route::get('/frequests/approve/{id}', ['as' => 'approve.fuelrequest', 'uses' => 'FrequestController@approve'])->middleware(['manadmin']);
     Route::get('/frequests/reject/{id}', ['as' => 'reject.fuelrequest', 'uses' => 'FrequestController@reject'])->middleware(['manadmin']);
     Route::get('/frequests/preview/{id}', ['as' => 'preview.fuelrequest', 'uses' => 'FrequestController@preview'])->middleware(['manadmin']);
 
-    Route::get('/notifyFinanceManager/{id}','FrequestController@notifyFm')->middleware(['mandieadmin']);
-    Route::get('/notifyFuelManager/{id}','FrequestController@notifyFman')->middleware(['mandieadmin']);
-    Route::get('/notifyFinanceDirector/{id}','FrequestController@notifyFd')->middleware(['mandieadmin']);
-    Route::get('/notifyTechnicalDirector/{id}','FrequestController@notifyTd')->middleware(['mandieadmin']);
-    Route::get('/notifyManagingDirector/{id}','FrequestController@notifyMd')->middleware(['mandieadmin']);
+    Route::get('/notifyFinanceManager/{id}', 'FrequestController@notifyFm')->middleware(['mandieadmin']);
+    Route::get('/notifyFuelManager/{id}', 'FrequestController@notifyFman')->middleware(['mandieadmin']);
+    Route::get('/notifyFinanceDirector/{id}', 'FrequestController@notifyFd')->middleware(['mandieadmin']);
+    Route::get('/notifyTechnicalDirector/{id}', 'FrequestController@notifyTd')->middleware(['mandieadmin']);
+    Route::get('/notifyManagingDirector/{id}', 'FrequestController@notifyMd')->middleware(['mandieadmin']);
 
-    Route::get('/myfuelrequests','FrequestController@myRequests');
-    Route::get('/currentrequests','FrequestController@currentRequests');
-    Route::get('/frequest-pdf/{id}','FrequestController@generatePdf')->name('generate.pdf');
-
-
+    Route::get('/myfuelrequests', 'FrequestController@myRequests');
+    Route::get('/currentrequests', 'FrequestController@currentRequests');
+    Route::get('/frequest-pdf/{id}', 'FrequestController@generatePdf')->name('generate.pdf');
 });
 
 Route::get('/frequests/emailapprove/{name}/{id}', ['as' => 'mailapprove.fuelrequest', 'uses' => 'FrequestController@mailApprove']);
 Route::get('/frequests/emailreject/{name}/{id}', ['as' => 'mailreject.fuelrequest', 'uses' => 'FrequestController@mailReject']);
 Route::get('/frequests/emailpreview/{name}/{id}', ['as' => 'mailpreview.fuelrequest', 'uses' => 'FrequestController@mailPreview']);
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
 
-    Route::get('/fuelsettings','FsettingController@fuelSettings')->name('get.fsetting')->middleware(['manadmin']);
+    Route::get('/fuelsettings', 'FsettingController@fuelSettings')->name('get.fsetting')->middleware(['manadmin']);
 
-    Route::put('/fuelsettings','FsettingController@updateMaSettingsEFuel')->name('fsetting.update')->middleware(['manadmin']);
+    Route::put('/fuelsettings', 'FsettingController@updateMaSettingsEFuel')->name('fsetting.update')->middleware(['manadmin']);
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/deleted-containers', 'SoftDeleteContainerTransaction', [
         'only' => [
@@ -364,10 +359,9 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
         ],
     ]);
 
-    Route::get('/transactions-report','ContainerTransactionController@getTransactionsReport');
+    Route::get('/transactions-report', 'ContainerTransactionController@getTransactionsReport');
 
-    Route::post('/transaction-report-post','ContainerTransactionController@postTransactionReport');
-
+    Route::post('/transaction-report-post', 'ContainerTransactionController@postTransactionReport');
 });
 
 
@@ -415,7 +409,7 @@ Route::group(['prefix' => 'activity', 'middleware' => ['web', 'auth', 'activity'
     Route::post('/restore-log', ['uses' => 'LaravelLoggerController@rPTbFPZzFiLwA17kBfsyJF3Fm1kuFsVtSc'])->name('restore-activity');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/batches/deleted', 'SoftDeleteFuelBatch', [
         'only' => [
@@ -432,10 +426,9 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
             'deleted',
         ],
     ]);
-
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('clients', 'ClientController', [
         'names' => [
@@ -446,10 +439,9 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
             'deleted',
         ],
     ]);
-
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/containers/deleted', 'SoftDeleteContainer', [
         'only' => [
@@ -471,7 +463,7 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
     Route::get('/empty-containers', 'ContainerController@emptyContainers');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/invoices/deleted', 'SoftDeleteInvoice', [
         'only' => [
@@ -488,10 +480,10 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
             'deleted',
         ],
     ]);
-    Route::get('/invoice-pdf/{id}','InvoiceController@generateInvoicePdf')->name('generate.pdfinvoice');
-    Route::get('/showform/{id}','InvoiceController@showform')->name('trans.summary');
-    Route::get('/getVoucherNum/','InvoiceController@generateVoucher')->name('generate.voucher');
-    Route::get('/mail-invoice/{id}','InvoiceController@emailInvoice')->name('mail.invoice');
+    Route::get('/invoice-pdf/{id}', 'InvoiceController@generateInvoicePdf')->name('generate.pdfinvoice');
+    Route::get('/showform/{id}', 'InvoiceController@showform')->name('trans.summary');
+    Route::get('/getVoucherNum/', 'InvoiceController@generateVoucher')->name('generate.voucher');
+    Route::get('/mail-invoice/{id}', 'InvoiceController@emailInvoice')->name('mail.invoice');
 });
 
 /*Route::get('testmailinv', function () {
@@ -524,7 +516,7 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
     return new App\Mail\FuelInvoice($details);
 });*/
 
-Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
     Route::resource('/stockissues/deleted', 'SoftDeleteStockController', [
         'only' => [
             'index', 'show', 'update', 'destroy',
@@ -541,13 +533,13 @@ Route::group(['middleware' => ['auth', 'activated','checkpass', 'activity', 'two
         ],
     ]);
 
-    Route::get('/cashsale-pdf/{id}','StockIssueController@generatePdf')->name('generate.salepdf');
+    Route::get('/cashsale-pdf/{id}', 'StockIssueController@generatePdf')->name('generate.salepdf');
 
-    Route::get('/mystockissues','StockIssueController@myStockIssues');
-    Route::get('/current-stock','StockIssueController@currentStockIssues');
+    Route::get('/mystockissues', 'StockIssueController@myStockIssues');
+    Route::get('/current-stock', 'StockIssueController@currentStockIssues');
 });
 
-Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'activity', 'twostep', 'checkblocked']], function () {
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/quotations/deleted', 'SoftDeleteQuotation', [
         'only' => [
@@ -565,10 +557,10 @@ Route::group(['middleware' => ['auth', 'activated','checkpass','manadmin', 'acti
         ],
     ]);
 
-    Route::get('/quote-pdf/{id}','QuotationController@generateQuotePdf')->name('generate.pdfquote');
-    Route::get('/showquote/{id}','QuotationController@showQuoteForm')->name('quote.summary');
-    Route::get('/mail-quote/{id}','QuotationController@emailQuotation')->name('mail.quote');
-
+    Route::get('/quote-pdf/{id}', 'QuotationController@generateQuotePdf')->name('generate.pdfquote');
+    Route::get('/quotationPdf/{id}', 'QuotationController@generateQuotationPdf');
+    Route::get('/showquote/{id}', 'QuotationController@showQuoteForm')->name('quote.summary');
+    Route::get('/mail-quote/{id}', 'QuotationController@emailQuotation')->name('mail.quote');
 });
 
 /*Route::get('testmailquote', function () {

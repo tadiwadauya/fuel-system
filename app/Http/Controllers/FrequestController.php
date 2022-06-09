@@ -356,7 +356,7 @@ class FrequestController extends Controller
                             return redirect()->back()->with('error', 'Sorry, this is beyond selected user\'s prescribed limit for this month. We\'re just going to ignore that request.');
                         }
                     }
-                } else{
+                } else {
                     $balance = Allocation::all()
                         ->where('paynumber', '=', $user->paynumber)
                         ->where('deleted_at', '=', null)
@@ -864,10 +864,5 @@ class FrequestController extends Controller
             // Process the exception, log, print etc.
             echo $e->getMessage();
         }
-    }
-
-    public function test()
-    {
-        return view('fuelrequests.test');
     }
 }

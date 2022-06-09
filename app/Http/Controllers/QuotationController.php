@@ -43,17 +43,18 @@ class QuotationController extends Controller
     {
         $quoteNum = DB::table('quotations')->latest('id')->first();
 
-        if ($quoteNum == null){
+        if ($quoteNum == null) {
             $quoteNum = 'WHEQ1';
-        } else{
-            $quoteNum = 'WHEQ'.($quoteNum->id+1);
+        } else {
+            $quoteNum = 'WHEQ' . ($quoteNum->id + 1);
         }
 
         $request->merge([
             'quote_num' => $quoteNum,
         ]);
 
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'quote_num'                  => 'required|max:255|unique:quotations',
                 'client'                  => 'required|max:255',
@@ -99,8 +100,7 @@ class QuotationController extends Controller
 
         $quotation->save();
 
-        return redirect('showquote/'.$quotation->id)->with('success', 'Quotation generated.');
-
+        return redirect('showquote/' . $quotation->id)->with('success', 'Quotation generated.');
     }
 
     /**
@@ -134,7 +134,8 @@ class QuotationController extends Controller
      */
     public function update(Request $request, Quotation $quotation)
     {
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'client'                  => 'required|max:255',
                 'email'                  => 'nullable|email',
@@ -184,26 +185,91 @@ class QuotationController extends Controller
     public function destroy(Quotation $quotation)
     {
         $quotation->delete();
-        return redirect('quotations')->with('success','Quotation deleted successfully.');
+        return redirect('quotations')->with('success', 'Quotation deleted successfully.');
     }
 
-    public function generateQuotePdf($id){
+    public function generateQuotePdf($id)
+    {
         $quotation = Quotation::findOrFail($id);
 
-        $pdf = \PDF::loadView('quotations.form', compact('quotation'));
-        return $pdf->stream($quotation->quote_num.".pdf");
+        // $pdf = \PDF::loadView('quotations.form', compact('quotation'));
+        // return $pdf->stream($quotation->quote_num . ".pdf");
+
+        try {
+            $mpdf = new \Mpdf\Mpdf([
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 48, //48
+                'margin_bottom' => 25,
+                'margin_header' => 10, //10
+                'margin_footer' => 10,
+            ]);
+
+            $html = \View::make('quotations.preview')->with('quotation', $quotation);
+            $html = $html->render();
+
+            $mpdf->SetProtection(array('print'));
+            $mpdf->SetTitle("Whelson Fuel Qoutation");
+            $mpdf->SetAuthor("Kudakwashe Masaya");
+            $mpdf->showWatermarkImage = true;
+            $mpdf->watermark_font = 'DejaVuSansCondensed';
+            $mpdf->watermarkTextAlpha = 0.1;
+            $mpdf->SetDisplayMode('fullpage');
+            $mpdf->WriteHTML($html);
+            $mpdf->Output("WhelsonForm" . $quotation->quote_num . '.pdf', 'I');
+        } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
+            // Process the exception, log, print etc.
+            echo $e->getMessage();
+        }
     }
 
-    public function showQuoteForm($id){
+    public function generateQuotationPdf($id)
+    {
+        $quotation = Quotation::findOrFail($id);
+
+        // $pdf = \PDF::loadView('quotations.form', compact('quotation'));
+        // return $pdf->stream($quotation->quote_num . ".pdf");
+
+        try {
+            $mpdf = new \Mpdf\Mpdf([
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 48, //48
+                'margin_bottom' => 25,
+                'margin_header' => 10, //10
+                'margin_footer' => 10,
+            ]);
+
+            $html = \View::make('quotations.preview')->with('quotation', $quotation);
+            $html = $html->render();
+
+            $mpdf->SetProtection(array('print'));
+            $mpdf->SetTitle("Whelson Fuel Qoutation");
+            $mpdf->SetAuthor("Kudakwashe Masaya");
+            $mpdf->showWatermarkImage = true;
+            $mpdf->watermark_font = 'DejaVuSansCondensed';
+            $mpdf->watermarkTextAlpha = 0.1;
+            $mpdf->SetDisplayMode('fullpage');
+            $mpdf->WriteHTML($html);
+            $mpdf->Output("WhelsonForm" . $quotation->quote_num . '.pdf', 'I');
+        } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
+            // Process the exception, log, print etc.
+            echo $e->getMessage();
+        }
+    }
+
+    public function showQuoteForm($id)
+    {
         $quotation = Quotation::findOrFail($id);
 
         return view('quotations.preview', compact('quotation'));
     }
 
-    public function emailQuotation($id){
+    public function emailQuotation($id)
+    {
         $quotation = Quotation::findOrFail($id);
 
-        if ($quotation->email == null){
+        if ($quotation->email == null) {
             return redirect()->back()->with('error', 'You did not provide an email address when you added this quote.');
         }
 
@@ -232,11 +298,10 @@ class QuotationController extends Controller
             //     Mail::to($quotation->email)->cc($quotation->email_cc)->send(new FuelQuotation($details));
             // }
 
-        } catch (\Exception $exception){
-            echo 'Error - '.$exception;
+        } catch (\Exception $exception) {
+            echo 'Error - ' . $exception;
         }
 
         return redirect()->back()->with('success', 'Quotation has been sent successfully.');
     }
-
 }

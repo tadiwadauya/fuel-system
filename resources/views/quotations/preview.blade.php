@@ -147,7 +147,6 @@
         #notices .notice {
             font-size: 14px;
         }
-
     </style>
 @endsection
 
@@ -169,7 +168,7 @@
                                 <i class="mdi mdi-mail mr-1"></i>Email
                             </a>
 
-                            <a class="btn btn-light btn-rounded" href="{{ url('/quote-pdf/' . $quotation->id) }}"
+                            <a class="btn btn-light btn-rounded" href="{{ url('/quotationPdf/' . $quotation->id) }}"
                                 target="_blank" type="button">
                                 <i class="mdi mdi-printer mr-1"></i>Print
                             </a>

@@ -139,7 +139,7 @@
                                                 <option value="ZWL">ZWL</option>
                                             </select>
                                         </div>
-                                        {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31', 'disabled']) !!}
+                                        {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'pattern' => '^\d{1,3}*(\.\d+)?$', 'value' => '', 'data-type' => 'currency', 'placeholder' => 'e.g. 31.31', 'readonly']) !!}
 
                                     </div>
                                     @if ($errors->has('amount'))
@@ -284,18 +284,18 @@
         const currencyEl = document.querySelector('#currency');
 
         quantityEl.addEventListener('keyup', function() {
-            if (priceEl.textContent != "") {
-                amountEl.textContent = +priceEl.textContent * quantityEl.textContent
+            if (priceEl.value != "") {
+                amountEl.value += priceEl.value * quantityEl.value
             } else {
-                amountEl.textContent = +""
+                amountEl.value += ""
             }
         })
 
         priceEl.addEventListener('keyup', function() {
-            if (priceEl.textContent != "") {
-                amountEl.textContent = +priceEl.textContent * quantityEl.textContent
+            if (priceEl.value != "") {
+                amountEl.value += priceEl.value * quantityEl.value
             } else {
-                amountEl.textContent = +""
+                amountEl.value += ""
             }
         })
     </script>
