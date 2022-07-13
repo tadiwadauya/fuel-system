@@ -178,49 +178,25 @@
         <table style="width: 100%">
             <tbody>
             <tr>
-                @if ($quotation->currency == 'USD')
                 <td id="notices"> <div id="client"><strong> STANBIC BANK </strong><br>
-                    ACCOUNT NAME: <strong>HALWICK INVESTMENTS</strong><br>
-                    BRANCH: <strong>SOUTHERTON</strong><br>
-                    BRANCH CODE: <strong>03120 </strong><br>
-                    ACCOUNT NUMBER: <strong>914 000 3431 974 </strong><br>
-                    SWIFT CODE: <strong>SBICZWHX </strong><br>
-                    CURRENCY: <strong>UNITED STATES DOLLARS </strong><br>
+                    ACCOUNT NAME: <strong>REDAN COUPON</strong><br>
+                    BRANCH: <strong>>MSASA</strong><br>
+                    ACCOUNT NUMBER: <strong>914 000 0931 844 </strong><br>
+
                     </div>
                 </td>
-                @else
-                    <td id="notices"> <div id="client"><strong> STANBIC BANK </strong><br>
-                            ACCOUNT NAME: <strong>HALWICK INVESTMENTS</strong><br>
-                            BRANCH: <strong>SOUTHERTON</strong><br>
-                            BRANCH CODE: <strong>03120 </strong><br>
-                            ACCOUNT NUMBER: <strong>914 0000 964 300 </strong><br>
-                            SWIFT CODE: <strong>SBICZWHX </strong><br>
-                            CURRENCY: <strong>ZWL </strong><br>
-                        </div>
-                    </td>
-                @endif
-                    @if ($quotation->currency == 'USD')
+
+
                 <td class="text-right" >
                     <div id="banktwo" class="float-right text-right">
-                    <strong>CBZ </strong><br>
-                    ACCOUNT NAME: <strong>HALWICK INVESTMENTS </strong><br>
-                    BRANCH: <strong>SOUTHERTON </strong><br>
-                    ACCOUNT NUMBER: <strong>02321025120062 </strong><br>
-                    SWIFT CODE: <strong>COBZZWHAXXX </strong><br>
-                    CURRENCY: <strong>UNITED STATES DOLLARS </strong><br>
+                    <strong>STANDARD BANK OF SOUTH AFRICA</strong><br>
+                    BENEFICIARY BANK NAME: <strong>STANBIC BANK </strong><br>
+                    ACCOUNT NUMBER: <strong>090861930 </strong><br>
+                    SWIFT BIC CODE: <strong>SBZAZAJJ </strong><br>
+                    BENEFICIARY BANK SWIFT CODE: <strong>SBICZWHX </strong><br>
                     </div>
                 </td>
-                    @else
-                        <td class="text-right" >
-                            <div id="banktwo" class="float-right text-right">
-                                <strong>CABS </strong><br>
-                                ACCOUNT NAME: <strong>HALWICK INVESTMENTS </strong><br>
-                                BRANCH: <strong>PARK STREET </strong><br>
-                                ACCOUNT NUMBER: <strong>100 476 9784 </strong><br>
-                                CURRENCY: <strong>ZWL </strong><br>
-                            </div>
-                        </td>
-                @endif
+
             </tr>
 
             </tbody>

@@ -192,35 +192,35 @@ class QuotationController extends Controller
     {
         $quotation = Quotation::findOrFail($id);
 
-        // $pdf = \PDF::loadView('quotations.form', compact('quotation'));
-        // return $pdf->stream($quotation->quote_num . ".pdf");
+        $pdf = \PDF::loadView('quotations.form', compact('quotation'));
+        return $pdf->stream($quotation->quote_num . ".pdf");
 
-        try {
-            $mpdf = new \Mpdf\Mpdf([
-                'margin_left' => 10,
-                'margin_right' => 10,
-                'margin_top' => 48, //48
-                'margin_bottom' => 25,
-                'margin_header' => 10, //10
-                'margin_footer' => 10,
-            ]);
+        // try {
+        //     $mpdf = new \Mpdf\Mpdf([
+        //         'margin_left' => 10,
+        //         'margin_right' => 10,
+        //         'margin_top' => 48, //48
+        //         'margin_bottom' => 25,
+        //         'margin_header' => 10, //10
+        //         'margin_footer' => 10,
+        //     ]);
 
-            $html = \View::make('quotations.preview')->with('quotation', $quotation);
-            $html = $html->render();
+        //     $html = \View::make('quotations.preview')->with('quotation', $quotation);
+        //     $html = $html->render();
 
-            $mpdf->SetProtection(array('print'));
-            $mpdf->SetTitle("Whelson Fuel Qoutation");
-            $mpdf->SetAuthor("Kudakwashe Masaya");
-            $mpdf->showWatermarkImage = true;
-            $mpdf->watermark_font = 'DejaVuSansCondensed';
-            $mpdf->watermarkTextAlpha = 0.1;
-            $mpdf->SetDisplayMode('fullpage');
-            $mpdf->WriteHTML($html);
-            $mpdf->Output("WhelsonForm" . $quotation->quote_num . '.pdf', 'I');
-        } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
-            // Process the exception, log, print etc.
-            echo $e->getMessage();
-        }
+        //     $mpdf->SetProtection(array('print'));
+        //     $mpdf->SetTitle("Whelson Fuel Qoutation");
+        //     $mpdf->SetAuthor("Kudakwashe Masaya");
+        //     $mpdf->showWatermarkImage = true;
+        //     $mpdf->watermark_font = 'DejaVuSansCondensed';
+        //     $mpdf->watermarkTextAlpha = 0.1;
+        //     $mpdf->SetDisplayMode('fullpage');
+        //     $mpdf->WriteHTML($html);
+        //     $mpdf->Output("WhelsonForm" . $quotation->quote_num . '.pdf', 'I');
+        // } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
+        //     // Process the exception, log, print etc.
+        //     echo $e->getMessage();
+        // }
     }
 
     public function generateQuotationPdf($id)
