@@ -156,18 +156,20 @@ class UserController extends Controller
             ->take(6)
             ->get();
 
-        $currentMonth = date('m');
+        // $currentMonth = date('m');
         $currentAllPetrol = DB::table('transactions')->select(
             DB::raw('sum(quantity) as currentPetrol')
         )
             ->where('ftype', 'Petrol')
-            ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+            ->whereMonth('created_at', date('m'))
+                        ->whereYear('created_at', date('Y'))
             ->get();
         $currentAllDiesel = DB::table('transactions')->select(
             DB::raw('sum(quantity) as currentDiesel')
         )
             ->where('ftype', 'Diesel')
-            ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+            ->whereMonth('created_at', date('m'))
+                        ->whereYear('created_at', date('Y'))
             ->get();
 
         $currentPetrol = DB::table('transactions')
@@ -190,7 +192,8 @@ class UserController extends Controller
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
                     ->where('allocation', $allocation)
-                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    ->whereMonth('created_at', date('m'))
+                        ->whereYear('created_at', date('Y'))
                     ->first();
 
                 if (is_null($currentAllocation) or is_null($currentAllocation->balance)) {
@@ -215,7 +218,8 @@ class UserController extends Controller
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
                     ->where('paynumber', $user->paynumber)
-                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    ->whereMonth('created_at', date('m'))
+                        ->whereYear('created_at', date('Y'))
                     ->first();
 
                 if (is_null($currentAllocation) or is_null($currentAllocation->balance)) {
@@ -244,7 +248,8 @@ class UserController extends Controller
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
                     ->where('paynumber', $user->paynumber)
-                    ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    ->whereMonth('created_at', date('m'))
+                        ->whereYear('created_at', date('Y'))
                     ->first();
 
                 if (is_null($currentAllocation) or is_null($currentAllocation->balance)) {
@@ -274,7 +279,8 @@ class UserController extends Controller
                     ->select('allocation', 'balance', 'alloc_size')
                     ->where('paynumber', $user->paynumber)
                     ->where('allocation', $allocation)
-                    // ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    // ->whereMonth('created_at', date('m'))
+                        // ->whereYear('created_at', date('Y'))
                     ->first();
 
                 if (is_null($currentAllocation) or is_null($currentAllocation->balance)) {
@@ -294,7 +300,8 @@ class UserController extends Controller
                     ->select('allocation', 'balance', 'alloc_size')
                     ->where('paynumber', $user->paynumber)
                     ->where('allocation', $allocation)
-                    // ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+                    // ->whereMonth('created_at', date('m'))
+                        // ->whereYear('created_at', date('Y'))
                     ->first();
 
                 if (is_null($currentAllocation) or is_null($currentAllocation->balance)) {
