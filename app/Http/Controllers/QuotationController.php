@@ -251,6 +251,7 @@ class QuotationController extends Controller
             $mpdf->watermarkTextAlpha = 0.1;
             $mpdf->SetDisplayMode('fullpage');
             $mpdf->WriteHTML($html);
+            $mpdf->ini_set('max_execution_time', 180);
             $mpdf->Output("WhelsonForm" . $quotation->quote_num . '.pdf', 'I');
         } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
             // Process the exception, log, print etc.
@@ -290,14 +291,13 @@ class QuotationController extends Controller
                 'created_at' => $quotation->created_at
             ];
 
-            Mail::to($quotation->email)->send(new FuelQuotation($details));
+            // Mail::to($quotation->email)->send(new FuelQuotation($details));
 
-            // if ($quotation->email_cc == null){
-            //     Mail::to($quotation->email)->send(new FuelQuotation($details));
-            // } elseif ($quotation->email_cc != null){
-            //     Mail::to($quotation->email)->cc($quotation->email_cc)->send(new FuelQuotation($details));
-            // }
-
+            if ($quotation->email_cc == null) {
+                Mail::to($quotation->email)->send(new FuelQuotation($details));
+            } elseif ($quotation->email_cc != null) {
+                Mail::to($quotation->email)->cc($quotation->email_cc)->send(new FuelQuotation($details));
+            }
         } catch (\Exception $exception) {
             echo 'Error - ' . $exception;
         }

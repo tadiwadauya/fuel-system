@@ -632,40 +632,6 @@ class FrequestController extends Controller
                 echo "Error" . $e;
             }
         }
-
-        //     $fmuser = DB::table('users')
-        //     ->where('paynumber',$frequest->paynumber)
-        //     ->get(); //Systems Applications Administrator Finance Manager
-        // /*$fmuser = User::where('position','=','Systems Applications Administrator')
-        //     ->orWhere('position','=','Systems Administrator')
-        //     ->get(); //Systems Applications Administrator Finance Manager*/
-
-        // if ($fmuser == null){
-        //     return redirect()->back()->with('error', 'Please check if the Finance Director and Technical Director Job position is assigned to anyone, because I could not find anyone.');
-        // } else{
-        //     try {
-        //         foreach ($fmuser as $authorizer){
-
-        //             $applicant = User::where('paynumber','=',$authorizer->paynumber)->first();//Systems Applications Administrator Finance Manager
-
-        //             $details = [
-        //                 'greeting' => 'Good day, ' . $authorizer->first_name,
-        //                 'body' => $applicant->first_name . ' ' . $applicant->last_name . ' has submitted a fuel request which needs your approval. ',
-        //                 'body1'=> $frequest->request_type,
-        //                 'body2' => $frequest->quantity.' of '.$frequest->ftype,
-        //                 'body3' => $frequest->amount.' of '.$frequest->amount,
-        //                 'body4'=> 'You can now go download your quatation:',
-        //                 'id' => $frequest->id
-        //             ];
-
-        //             Mail::to($authorizer->email)->cc(["dauya1994@gmail.com"])->send(new NewFuelRequestApproval($details));
-        //         }
-
-        //     } catch (\Exception $exception){
-        //         echo 'Error - '.$exception;
-        //     }
-        // }
-
     }
 
     public function mailApprove($name, $frequest_id)
@@ -692,7 +658,7 @@ class FrequestController extends Controller
                     'quantity' => $frequest->quantity . ' of ' . $frequest->ftype,
                     'amount' => $frequest->amount,
                     'link' => 'You can print this email as your Quotation:',
-                    'downloadUrl' => 'https://fuel.whelson.net.za/frequests/' . $frequest->id
+                    'downloadUrl' => 'http://127.0.0.1:8000/frequests/' . $frequest->id
                 ];
 
                 if ($frequest->request_type == 'Cash Sale') {

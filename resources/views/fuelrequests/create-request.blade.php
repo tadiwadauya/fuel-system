@@ -54,7 +54,12 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                            {!! Form::open(['route' => 'frequests.store', 'method' => 'POST', 'role' => 'form', 'class' => 'needs-validation']) !!}
+                            {!! Form::open([
+                                'route' => 'frequests.store',
+                                'method' => 'POST',
+                                'role' => 'form',
+                                'class' => 'needs-validation',
+                            ]) !!}
 
                             {!! csrf_field() !!}
 
@@ -196,7 +201,8 @@
                                 {!! Form::label('ftype', 'Fuel Type', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        <select class="form-control ftype" name="ftype" id="ftype" onchange="myFunction()">
+                                        <select class="form-control ftype" name="ftype" id="ftype"
+                                            onchange="myFunction()">
 
                                             <option value="Petrol">Petrol</option>
                                             <option value="Diesel">Diesel</option>
@@ -221,7 +227,8 @@
                                                 <option value="">Select U$applicableCashser</option>
                                                 @if ($users)
                                                     @foreach ($users as $user)
-                                                        <option value="{{ $user->paynumber }}">{{ $user->first_name }}
+                                                        <option value="{{ $user->paynumber }}">
+                                                            {{ $user->first_name }}
                                                             {{ $user->last_name }} - {{ $user->department }}</option>
                                                     @endforeach
                                                 @endif
@@ -235,14 +242,20 @@
                                     </div>
                                 </div>
                             @else
-                                <input type="hidden" name="employee" id="employee" value="{{ Auth::user()->paynumber }}">
+                                <input type="hidden" name="employee" id="employee"
+                                    value="{{ Auth::user()->paynumber }}">
                             @endif
 
-                            <div class="form-group has-feedback row {{ $errors->has('quantity') ? ' has-error ' : '' }}">
+                            <div
+                                class="form-group has-feedback row {{ $errors->has('quantity') ? ' has-error ' : '' }}">
                                 {!! Form::label('quantity', 'Quantity', ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        {!! Form::text('quantity', null, ['id' => 'quantity', 'class' => 'form-control', 'placeholder' => 'e.g. Topup or Quantity in Litres']) !!}
+                                        {!! Form::text('quantity', null, [
+                                            'id' => 'quantity',
+                                            'class' => 'form-control',
+                                            'placeholder' => 'e.g. Topup or Quantity in Litres',
+                                        ]) !!}
                                         <div class="input-group-append">
                                             <label class="input-group-text" for="quantity">
                                                 <i class="fa fa-fw fa-barcode" aria-hidden="true"></i>
@@ -262,7 +275,12 @@
                                     {!! Form::label('amount', 'Amount(zwl)', ['class' => 'col-md-3 control-label']) !!}
                                     <div class="col-md-9">
                                         <div class="input-group">
-                                            {!! Form::text('amount', null, ['id' => 'amount', 'class' => 'form-control', 'placeholder' => 'e.g. Amount of fuel to be paid for cash sales', 'readonly']) !!}
+                                            {!! Form::text('amount', null, [
+                                                'id' => 'amount',
+                                                'class' => 'form-control',
+                                                'placeholder' => 'e.g. Amount of fuel to be paid for cash sales',
+                                                'readonly',
+                                            ]) !!}
                                             <div class="input-group-append">
                                                 <label class="input-group-text" for="amount">
                                                     <i class="fa fa-fw fa-barcode" aria-hidden="true"></i>
@@ -327,53 +345,25 @@
 
         quantityEl.addEventListener('keyup', function() {
             if (fuelEl.value == "Petrol") {
-                amountEl.value = +petrolPriceEl.textContent * quantityEl.value
+                amountEl.value += petrolPriceEl.textContent * quantityEl.value
             } else if (fuelEl.value == "Diesel") {
-                amountEl.value = +dieselPriceEl.textContent * quantityEl.value
+                amountEl.value += dieselPriceEl.textContent * quantityEl.value
             } else {
-                amountEl.value = +""
+                amountEl.value += ""
             }
         })
 
         function myFunction() {
 
             if (fuelEl.value == "Petrol") {
-                amountEl.value = +petrolPriceEl.textContent * quantityEl.value
+                amountEl.value += petrolPriceEl.textContent * quantityEl.value
             } else if (fuelEl.value == "Diesel") {
-                amountEl.value = +dieselPriceEl.textContent * quantityEl.value
+                amountEl.value += dieselPriceEl.textContent * quantityEl.value
             } else {
-                amountEl.value = +""
+                amountEl.value += ""
             }
-            // })
         }
     </script>
-    <script>
-        const dieselPriceEl = document.querySelector("#dieselPrice");
-        const petrolPriceEl = document.querySelector("#petrolPrice");
-        const quantityEl = document.querySelector("#quantity");
-        const amountEl = document.querySelector("#amount");
-        const fuelEl = document.querySelector(".ftype");
-
-        // fuelEl.addEventListener('change', (event) => {
-        //     console.log("hello")
-        //         // if (fuelEl.value == "Petrol") {
-        //         //     amountEl.value =+ petrolPriceEl.textContent * quantityEl.value
-        //         // } else if (fuelEl.value == "Diesel") {
-        //         //     amountEl.value =+ dieselPriceEl.textContent * quantityEl.value
-        //         // } else {
-        //         //     amountEl.value =+ ""
-        //         // }
-        // })
-
-        function myFunction() {
-            console.log("Hello")
-        }
-
-        // function changeFuel() {
-
-        // }
-    </script>
-
     <script>
         function showDiv(divId, element) {
             document.getElementById(divId).style.display = element.value == 'Cash Sale' ? 'block' : 'none';
