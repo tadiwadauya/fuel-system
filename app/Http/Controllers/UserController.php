@@ -27,169 +27,169 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
+        $allocation = $user->paynumber . date('FY');
+
+        $petrollitres = DB::table('transactions')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Petrol')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $petrolcash = DB::table('cash_sales')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Petrol')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $petrolCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        $petrolAllocationsData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        foreach ($petrolcash as $order) {
+            if ($order->months != null) {
+                $petrolCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+            }
+        }
+
+        foreach ($petrollitres as $order) {
+            $petrolAllocationsData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+        }
+
+        $diesellitres = DB::table('transactions')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Diesel')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $dieselcash = DB::table('cash_sales')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Diesel')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        // dd($dieselcash);
+
+        $dieselCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        $dieselAllocationsdata = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        foreach ($dieselcash as $order) {
+            if ($order->months != null) {
+                $dieselCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+            }
+        }
+
+        foreach ($diesellitres as $order) {
+            $dieselAllocationsdata[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+        }
+
+        $sssales = DB::table('invoices')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $serviceStationData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        foreach ($sssales as $order) {
+            $serviceStationData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+        }
+
+        $stockFuelPetrol = DB::table('stock_issues')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Petrol')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $stockFuelDiesel = DB::table('stock_issues')->select(
+            DB::raw('sum(quantity) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('ftype', 'Diesel')
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        $petrolStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        $dieselStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        foreach ($stockFuelPetrol as $order) {
+            $petrolStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+        }
+
+        foreach ($stockFuelDiesel as $order) {
+            $dieselStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
+        }
+
+        $days = DB::table('transactions')
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('SUM(CASE WHEN ftype = "Petrol" THEN quantity END) as Peturu'),
+                DB::raw('SUM(CASE WHEN ftype = "Diesel" THEN quantity END) as Dhiziri'),
+                DB::raw('sum(quantity) as count')
+            )
+            ->where('deleted_at', '=', null)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('created_at', 'DESC')
+            ->take(6)
+            ->get();
+
+        $currentMonth = date('m');
+        $currentAllPetrol = DB::table('transactions')->select(
+            DB::raw('sum(quantity) as currentPetrol')
+        )
+            ->where('ftype', 'Petrol')
+            ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+            ->get();
+        $currentAllDiesel = DB::table('transactions')->select(
+            DB::raw('sum(quantity) as currentDiesel')
+        )
+            ->where('ftype', 'Diesel')
+            ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
+            ->get();
+
+        $currentPetrol = DB::table('transactions')
+            ->select(DB::raw('sum(quantity) as currentPetrol'))
+            ->where('employee', $user->paynumber)
+            ->where('ftype', 'Petrol')
+            ->where('allocation', $allocation)
+            ->get();
+
+        $currentDiesel = DB::table('transactions')
+            ->select(DB::raw('sum(quantity) as currentDiesel'))
+            ->where('employee', $user->paynumber)
+            ->where('ftype', 'Diesel')
+            ->where('allocation', $allocation)
+            ->get();
+
         if ($user->isAdmin()) {
-
-            $user_detail = Auth::user()->paynumber . date('FY');
-
-            $petrollitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $petrolAllocationsData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($petrolcash as $order) {
-                if ($order->months != null) {
-                    $petrolCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-                }
-            }
-
-            foreach ($petrollitres as $order) {
-                $petrolAllocationsData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $diesellitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $dieselcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            // dd($dieselcash);
-
-            $dieselCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselAllocationsdata = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($dieselcash as $order) {
-                if ($order->months != null) {
-                    $dieselCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-                }
-            }
-
-            foreach ($diesellitres as $order) {
-                $dieselAllocationsdata[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $sssales = DB::table('invoices')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $serviceStationData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($sssales as $order) {
-                $serviceStationData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $stockFuelPetrol = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $stockFuelDiesel = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($stockFuelPetrol as $order) {
-                $petrolStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($stockFuelDiesel as $order) {
-                $dieselStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $days = DB::table('transactions')
-                ->select(
-                    DB::raw('DATE(created_at) as date'),
-                    DB::raw('SUM(CASE WHEN ftype = "Petrol" THEN quantity END) as Peturu'),
-                    DB::raw('SUM(CASE WHEN ftype = "Diesel" THEN quantity END) as Dhiziri'),
-                    DB::raw('sum(quantity) as count')
-                )
-                ->where('deleted_at', '=', null)
-                ->groupBy(DB::raw('DATE(created_at)'))
-                ->orderBy('created_at', 'DESC')
-                ->take(6)
-                ->get();
-
-            $currentMonth = date('m');
-            $currentAllPetrol = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentPetrol')
-            )
-                ->where('ftype', 'Petrol')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-            $currentAllDiesel = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentDiesel')
-            )
-                ->where('ftype', 'Diesel')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-
-            $currentPetrol = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentPetrol'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Petrol')
-                ->where('allocation', $user_detail)
-                ->get();
-
-            $currentDiesel = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentDiesel'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Diesel')
-                ->where('allocation', $user_detail)
-                ->get();
 
             if (auth()->user()->allocation == 'Allocation') {
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
-                    ->where('allocation', $user_detail)
+                    ->where('allocation', $allocation)
                     ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
@@ -211,164 +211,10 @@ class UserController extends Controller
 
             return view('pages.admin.home', compact('days', 'percentAllocation', 'usedAllocation', 'currentAllocation', 'petrolCashData', 'petrolAllocationsData', 'dieselCashData', 'dieselAllocationsdata', 'currentAllPetrol', 'currentAllDiesel', 'currentPetrol', 'currentDiesel', 'serviceStationData', 'petrolStockData', 'dieselStockData'));
         } elseif ($user->isManager()) {
-
-            $user_detail = Auth::user()->paynumber . date('FY');
-
-            $petrollitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $petrolAllocationsData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($petrolcash as $order) {
-                $petrolCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($petrollitres as $order) {
-                $petrolAllocationsData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $diesellitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $dieselcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $dieselCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselAllocationsdata = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($dieselcash as $order) {
-                $dieselCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($diesellitres as $order) {
-                $dieselAllocationsdata[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $sssales = DB::table('invoices')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $serviceStationData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($sssales as $order) {
-                $serviceStationData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $stockFuelPetrol = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $stockFuelDiesel = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($stockFuelPetrol as $order) {
-                $petrolStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($stockFuelDiesel as $order) {
-                $dieselStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $days = DB::table('transactions')
-                ->select(
-                    DB::raw('DATE(created_at) as date'),
-                    DB::raw('SUM(CASE WHEN ftype = "Petrol" THEN quantity END) as Peturu'),
-                    DB::raw('SUM(CASE WHEN ftype = "Diesel" THEN quantity END) as Dhiziri'),
-                    DB::raw('sum(quantity) as count')
-                )
-                ->where('deleted_at', '=', null)
-                ->groupBy(DB::raw('DATE(created_at)'))
-                ->orderBy('created_at', 'DESC')
-                ->take(6)
-                ->get();
-
-            $currentMonth = date('m');
-            $currentAllPetrol = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentPetrol')
-            )
-                ->where('ftype', 'Petrol')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-
-            $currentAllDiesel = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentDiesel')
-            )
-                ->where('ftype', 'Diesel')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-
-            $currentPetrol = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentPetrol'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Petrol')
-                ->where('allocation', $user_detail)
-                ->get();
-
-            $currentDiesel = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentDiesel'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Diesel')
-                ->where('allocation', $user_detail)
-                ->get();
-
-
             if (auth()->user()->allocation == 'Allocation') {
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
-                    ->where('paynumber', $user_detail)
+                    ->where('paynumber', $user->paynumber)
                     ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
@@ -387,154 +233,17 @@ class UserController extends Controller
                 $usedAllocation = 0;
                 $currentAllocation = DB::table('users')
                     ->select('allocation', 'alloc_size')
-                    ->where('paynumber', Auth::user()->paynumber)
+                    ->where('paynumber', $user->paynumber)
                     ->first();
             }
 
             return view('pages.manager.home', compact('days', 'percentAllocation', 'usedAllocation', 'currentAllocation', 'petrolCashData', 'petrolAllocationsData', 'dieselCashData', 'dieselAllocationsdata', 'currentAllPetrol', 'currentAllDiesel', 'currentPetrol', 'currentDiesel', 'serviceStationData', 'petrolStockData', 'dieselStockData'));
         } elseif ($user->isDiesel()) {
 
-            $user_detail = Auth::user()->paynumber . date('FY');
-
-            $petrollitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $petrolAllocationsData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($petrolcash as $order) {
-                $petrolCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($petrollitres as $order) {
-                $petrolAllocationsData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $diesellitres = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $dieselcash = DB::table('cash_sales')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $dieselCashData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselAllocationsdata = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($dieselcash as $order) {
-                $dieselCashData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($diesellitres as $order) {
-                $dieselAllocationsdata[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $stockFuelPetrol = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Petrol')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $stockFuelDiesel = DB::table('stock_issues')->select(
-                DB::raw('sum(quantity) as sums'),
-                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-            )
-                ->where('ftype', 'Diesel')
-                ->groupBy('months', 'monthKey')
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-            $petrolStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            $dieselStockData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-            foreach ($stockFuelPetrol as $order) {
-                $petrolStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            foreach ($stockFuelDiesel as $order) {
-                $dieselStockData[$order->monthKey - 1] = number_format($order->sums, 2, '.', '');
-            }
-
-            $days = DB::table('transactions')
-                ->select(
-                    DB::raw('DATE(created_at) as date'),
-                    DB::raw('SUM(CASE WHEN ftype = "Petrol" THEN quantity END) as Peturu'),
-                    DB::raw('SUM(CASE WHEN ftype = "Diesel" THEN quantity END) as Dhiziri'),
-                    DB::raw('sum(quantity) as count')
-                )
-                ->where('deleted_at', '=', null)
-                ->groupBy(DB::raw('DATE(created_at)'))
-                ->orderBy('created_at', 'DESC')
-                ->take(5)
-                ->get();
-
-            $currentMonth = date('m');
-            $currentAllPetrol = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentPetrol')
-            )
-                ->where('ftype', 'Petrol')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-
-            $currentAllDiesel = DB::table('transactions')->select(
-                DB::raw('sum(quantity) as currentDiesel')
-            )
-                ->where('ftype', 'Diesel')
-                ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
-                ->get();
-
-            $currentPetrol = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentPetrol'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Petrol')
-                ->where('allocation', $user_detail)
-                ->get();
-
-            $currentDiesel = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentDiesel'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Diesel')
-                ->where('allocation', $user_detail)
-                ->get();
-
             if (auth()->user()->allocation == 'Allocation') {
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
-                    ->where('paynumber', Auth::user()->paynumber)
+                    ->where('paynumber', $user->paynumber)
                     ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
@@ -556,30 +265,15 @@ class UserController extends Controller
 
             return view('pages.diesel.home', compact('days', 'percentAllocation', 'usedAllocation', 'currentAllocation', 'petrolCashData', 'petrolAllocationsData', 'dieselCashData', 'dieselAllocationsdata', 'currentAllPetrol', 'currentAllDiesel', 'currentPetrol', 'currentDiesel', 'petrolStockData', 'dieselStockData'));
         } else {
-            $user_detail = Auth::user()->paynumber;
-            $search = $user_detail . date('FY');
-            $currentMonth = date('m');
-            $currentPetrol = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentPetrol'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Petrol')
-                ->where('allocation', $search)
-                ->get();
 
-            $currentDiesel = DB::table('transactions')
-                ->select(DB::raw('sum(quantity) as currentDiesel'))
-                ->where('employee', Auth::user()->paynumber)
-                ->where('ftype', 'Diesel')
-                ->where('allocation', $search)
-                ->get();
 
-            if (auth()->user()->allocation == 'Allocation') {
+            if ($user->allocation == 'Allocation') {
 
 
                 $currentAllocation = DB::table('allocations')
                     ->select('allocation', 'balance', 'alloc_size')
-                    ->where('paynumber', Auth::user()->paynumber)
-                    ->where('allocation', $search)
+                    ->where('paynumber', $user->paynumber)
+                    ->where('allocation', $allocation)
                     // ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
@@ -593,32 +287,13 @@ class UserController extends Controller
                     $percentAllocation = ($currentAllocation->balance / $currentAllocation->alloc_size) * 100;
                     $usedAllocation = $currentAllocation->alloc_size - $currentAllocation->balance;
                 }
-            }
-
-            // $user_details = Auth::user()->paynumber;
-            // $search = $user_detail.date('FY');
-            // $currentMonth = date('m');
-            // $currentPetrols = DB::table('cash_sales')
-            //     ->select(DB::raw('sum(quantity) as currentPetrol'))
-            //     ->where('employee',Auth::user()->paynumber)
-            //     ->where('ftype','Petrol')
-            //     ->where('allocation',$search)
-            //     ->get();
-
-            // $currentDiesels = DB::table('cash_sales')
-            //     ->select(DB::raw('sum(quantity) as currentDiesel'))
-            //     ->where('employee',Auth::user()->paynumber)
-            //     ->where('ftype','Diesel')
-            //     ->where('allocation',$search)
-            //     ->get();
-
-            elseif (auth()->user()->allocation == 'Non-allocation') {
+            } elseif ($user->allocation == 'Non-allocation') {
 
 
                 $currentAllocation = DB::table('non_allocations')
                     ->select('allocation', 'balance', 'alloc_size')
-                    ->where('paynumber', Auth::user()->paynumber)
-                    ->where('allocation', $search)
+                    ->where('paynumber', $user->paynumber)
+                    ->where('allocation', $allocation)
                     // ->whereRaw('MONTH(created_at) = ?', [$currentMonth])
                     ->first();
 
