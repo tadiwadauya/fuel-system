@@ -211,7 +211,7 @@ class FrequestController extends Controller
             [
                 'request_type.required'         => 'Please select the type of fuel allocation this is',
                 'employee.required'       => 'Who is this fuel request meant for?',
-                'quantity.required'       => 'Is this request for a topup or for a specific quantity?',
+                'quantity.required'       => 'Is this request for a topup, top up or for a specific quantity?',
                 'ftype.required'       => 'What is the type of fuel requested for?',
             ]
         );
@@ -223,7 +223,11 @@ class FrequestController extends Controller
         $frequest = new Frequest();
         $frequest->request_type = $request->input('request_type');
         $frequest->employee = $request->input('employee');
-        $frequest->quantity = $request->input('quantity');
+        if (is_numeric($request->input('quantity')) || $request->input('quantity') == 'topup' || $request->input('quantity') == 'top up') {
+            $frequest->quantity = $request->input('quantity');
+        } else {
+            return redirect()->back()->with('error', 'Sorry, use topup, top up or a number for Quantity.');
+        }
         $frequest->ftype = $request->input('ftype');
         $frequest->status = 0;
 
@@ -522,7 +526,7 @@ class FrequestController extends Controller
             [
                 'request_type.required'         => 'Please select the type of fuel allocation this is',
                 'employee.required'       => 'Who is this fuel request meant for?',
-                'quantity.required'       => 'Is this request for a topup or for a specific quantity?',
+                'quantity.required'       => 'Is this request for a topup, top up or for a specific quantity?',
                 'ftype.required'       => 'What is the type of fuel requested for?',
             ]
         );
