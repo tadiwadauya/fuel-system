@@ -223,11 +223,7 @@ class FrequestController extends Controller
         $frequest = new Frequest();
         $frequest->request_type = $request->input('request_type');
         $frequest->employee = $request->input('employee');
-        if (is_numeric($request->input('quantity')) || $request->input('quantity') == 'topup' || $request->input('quantity') == 'top up') {
-            $frequest->quantity = $request->input('quantity');
-        } else {
-            return redirect()->back()->with('error', 'Sorry, use topup, top up or a number for Quantity.');
-        }
+        $frequest->quantity = $request->input('quantity');
         $frequest->ftype = $request->input('ftype');
         $frequest->status = 0;
 
