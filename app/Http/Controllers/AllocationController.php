@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Allocation;
+use App\Models\DirectorAllocations;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,8 @@ class AllocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
+    public function index()
+    {
         $allocations = Allocation::all();
         return view('allocations.allocations', compact('allocations'));
     }
@@ -26,8 +28,9 @@ class AllocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {
-        $users = User::all()->where('allocation','=','Allocation');
+    public function create()
+    {
+        $users = User::all()->where('allocation', '=', 'Allocation');
 
         return view('allocations.create-allocation', compact('users'));
     }
@@ -40,7 +43,8 @@ class AllocationController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'user_id'                  => 'required|max:255',
                 'paynumber'                  => 'required|max:255',
@@ -59,7 +63,7 @@ class AllocationController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $customer = User::where('paynumber','=',$request->input('paynumber'))->firstOrFail();
+        $customer = User::where('paynumber', '=', $request->input('paynumber'))->firstOrFail();
 
         if ($customer->allocation != 'Allocation') {
             return redirect('allocations')->with('error', 'This user does not have a fuel allocation.');
@@ -129,41 +133,45 @@ class AllocationController extends Controller
         return redirect('allocations')->with('success', 'Successfully deleted allocation.');
     }
 
-    public function getAllocations($paynumber) {
+    public function getAllocations($paynumber)
+    {
         /*$directors = DB::table("users")
             ->where('allocation','=','Director')
             ->get();*/
 
         $allocations = DB::table("allocations")
-            ->where("paynumber",$paynumber)
-            ->where("deleted_at",'=',null)
+            ->where("paynumber", $paynumber)
+            ->where("deleted_at", '=', null)
             ->pluck("allocation");
 
-        if($allocations == null){
+        if ($allocations == null) {
             $allocations = DB::table("users")
-                ->where("paynumber",$paynumber)
+                ->where("paynumber", $paynumber)
                 ->pluck("alloc_size");
         }
 
         return response()->json($allocations);
     }
 
-    public function myAllocations(){
+    public function myAllocations()
+    {
         $allocations = Allocation::where('paynumber', '=', Auth::user()->paynumber)
             ->withTrashed()
             ->get();
         return view('allocations.myallocations', compact('allocations'));
     }
 
-    public function bulkCreateAllocations(){
-        $users = User::where('allocation','=','Allocation')
-            ->orWhere('allocation','=','Director')
+    public function bulkCreateAllocations()
+    {
+        $users = User::where('allocation', '=', 'Allocation')
+            ->orWhere('allocation', '=', 'Director')
             ->get();
 
         return view('allocations.create-bulk-allocations', compact('users'));
     }
 
-    public function allocationsBatcher(){
+    public function allocationsBatcher()
+    {
         Allocation::query()->delete();
 
         $users = User::where('allocation', '=', 'Allocation')
@@ -185,30 +193,59 @@ class AllocationController extends Controller
             $allocation->save();
         }
 
-        $directors = User::where('allocation', '=', 'Director')
-            ->get();
+        // $directors = User::where('allocation', '=', 'Director')
+        //     ->get();
 
-        foreach ($directors as $director) {
-            $newAlloc = $director->alloc_size + 250;
+        // foreach ($directors as $director) {
+        //     $newAlloc = $director->alloc_size + 250;
 
-            if ($director->alloc_size<0){
-                DB::table("users")
-                    ->where("allocation", '=', 'Director')
-                    ->where("id", '=', $director->id)
-                    ->update(['alloc_size' => '250.00', 'updated_at' => now()]);
-            } else {
-                DB::table("users")
-                    ->where("allocation", '=', 'Director')
-                    ->where("id", '=', $director->id)
-                    ->update(['alloc_size' => $newAlloc, 'updated_at' => now()]);
+        //     if ($director->alloc_size < 0) {
+        //         DB::table("users")
+        //             ->where("allocation", '=', 'Director')
+        //             ->where("id", '=', $director->id)
+        //             ->update(['alloc_size' => '250.00', 'updated_at' => now()]);
+        //     } else {
+        //         DB::table("users")
+        //             ->where("allocation", '=', 'Director')
+        //             ->where("id", '=', $director->id)
+        //             ->update(['alloc_size' => $newAlloc, 'updated_at' => now()]);
+        //     }
+        // }
+
+        if ($allocation->save()) {
+            $directors = User::where('allocation', '=', 'Director')
+                ->get();
+
+            foreach ($directors as $director) {
+                $dalloc = new DirectorAllocations();
+                $newAlloc = $director->alloc_size + 250;
+
+                if ($director->alloc_size < 0) {
+                    DB::table("users")
+                        ->where("allocation", '=', 'Director')
+                        ->where("id", '=', $director->id)
+                        ->update(['alloc_size' => '250.00', 'updated_at' => now()]);
+                } else {
+                    DB::table("users")
+                        ->where("allocation", '=', 'Director')
+                        ->where("id", '=', $director->id)
+                        ->update(['alloc_size' => $newAlloc, 'updated_at' => now()]);
+                }
+
+                $dalloc->paynumber = $director->paynumber;
+                $dalloc->allocation = $director->allocation  . $month;
+                $dalloc->quantity = $newAlloc;
+                $dalloc->balance = $newAlloc;
+
+                $dalloc->save();
             }
         }
 
-        return redirect('allocations')->with('success', 'Fuel Allocations for '.date('F Y'). ' have been created successfully');
-
+        return redirect('allocations')->with('success', 'Fuel Allocations for ' . date('F Y') . ' have been created successfully');
     }
 
-    public function execAllocations(){
+    public function execAllocations()
+    {
         $allocations = User::where('allocation', '=', 'Director')->get();
         return view('allocations.exec-allocations', compact('allocations'));
     }

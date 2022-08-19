@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Allocation;
+use App\Models\DirectorAllocations;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,10 +30,10 @@ class TransactionController extends Controller
      */
     public function create()
     {
-        $users = User::where('allocation','=','Allocation')
-        ->orWhere('allocation','Director')
-        ->orWhere('allocation','VIP')
-        ->get();
+        $users = User::where('allocation', '=', 'Allocation')
+            ->orWhere('allocation', 'Director')
+            ->orWhere('allocation', 'VIP')
+            ->get();
 
         return view('transactions.create-transaction', compact('users'));
     }
@@ -43,18 +44,20 @@ class TransactionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $tdate = date('Ymd');
-        $tletter = chr(64+rand(0,26));
+        $tletter = chr(64 + rand(0, 26));
         $ttime = date('His');
 
-        $trans_code = 'T'.$tdate.'.'.$tletter.$ttime;
+        $trans_code = 'T' . $tdate . '.' . $tletter . $ttime;
         $request->merge([
             'trans_code' => $trans_code,
             'created_at' => $request->input('created_at')
         ]);
 
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'trans_code'                  => 'required|max:255|unique:transactions',
                 'employee'                  => 'required|max:255',
@@ -87,9 +90,9 @@ class TransactionController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $employee = User::where('paynumber','=',$request->input('employee'))->firstOrFail();
+        $employee = User::where('paynumber', '=', $request->input('employee'))->firstOrFail();
 
-        if ($employee->allocation == 'Director' OR $employee->allocation == 'VIP') {
+        if ($employee->allocation == 'Director' or $employee->allocation == 'VIP') {
             $remaining = $employee->alloc_size - $request->input('quantity');
             $employee->alloc_size = $remaining;
             $employee->save();
@@ -109,9 +112,21 @@ class TransactionController extends Controller
                 'amount'       => $request->input('amount'),
             ]);
 
+            $currentAlloc = DirectorAllocations::where('paynumber', '=', $employee->paynumber)
+                ->whereMonth('created_at', date('m'))
+                ->firstOrFail();
+            $currentAlloc->balance = $currentAlloc->balance - $request->input('quantity');
+            $currentAlloc->used = $currentAlloc->used + $request->input('quantity');
+
+            if ($currentAlloc->used > $currentAlloc->quantity) {
+                $currentAlloc->extra = $currentAlloc->used - $currentAlloc->quantity;
+            }
+
+            $currentAlloc->save();
+
             $transaction->save();
 
-            return redirect('transactions')->with('success', 'Transaction recorded.');
+            return redirect('current-trans')->with('success', 'Transaction recorded.');
         }
 
         $allocation = Allocation::where('allocation', $request->input('allocation'))->firstorfail();
@@ -123,7 +138,7 @@ class TransactionController extends Controller
             } else {
                 return back()->with('error', 'Fuel requested is more than the allocation available balance.');
             }
-        } else{
+        } else {
             if ($request->input('quantity') <= $allocation->balance) {
                 $remaining = $allocation->balance - $request->input('quantity');
                 $allocation->balance = $remaining;
@@ -173,7 +188,7 @@ class TransactionController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        $users = User::all()->where('allocation','=','Allocation');
+        $users = User::all()->where('allocation', '=', 'Allocation');
 
         return view('transactions.edit-transaction', compact('transaction', 'users'));
     }
@@ -187,12 +202,13 @@ class TransactionController extends Controller
      */
     public function update(Request $request, Transaction $transaction)
     {
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'employee'   => 'required|max:255',
-                'voucher'    => 'required|max:255|unique:transactions,voucher,'.$transaction->id,
+                'voucher'    => 'required|max:255|unique:transactions,voucher,' . $transaction->id,
                 'ftype'      => 'required|max:255',
-                'meter_start'=> 'required|max:255',
+                'meter_start' => 'required|max:255',
                 'meter_stop' => 'required|max:255',
                 'quantity'   => 'required|max:255',
                 'reg_num'    => 'required|max:255',
@@ -215,10 +231,10 @@ class TransactionController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $employee = User::where('paynumber','=',$request->input('employee'))->firstOrFail();
+        $employee = User::where('paynumber', '=', $request->input('employee'))->firstOrFail();
 
         if ($employee->allocation == 'Director') {
-            if ($transaction->quantity != $request->input('quantity')){
+            if ($transaction->quantity != $request->input('quantity')) {
                 $orgQuant = $transaction->quantity + $employee->alloc_size;
 
                 $remaining = $orgQuant - $request->input('quantity');
@@ -251,7 +267,7 @@ class TransactionController extends Controller
                         $remaining = $orgQuant - $request->input('quantity');
                         $allocation->balance = $remaining;
                         $allocation->save();
-                    } else{
+                    } else {
                         return back()->with('error', 'Fuel requested is more than the allocation available balance.');
                     }
                 } else {
@@ -292,12 +308,14 @@ class TransactionController extends Controller
      * @param  \App\Models\Transaction  $transaction
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Transaction $transaction) {
+    public function destroy(Transaction $transaction)
+    {
         $transaction->delete();
         return redirect('transactions')->with('success', 'Successfully deleted transaction.');
     }
 
-    public function generatePdf($id){
+    public function generatePdf($id)
+    {
 
         $transaction = Transaction::findorFail($id);
 
@@ -311,7 +329,7 @@ class TransactionController extends Controller
                 'margin_footer' => 10,
             ]);
 
-            $html = \View::make('transactions.receipt' )->with('transaction', $transaction);
+            $html = \View::make('transactions.receipt')->with('transaction', $transaction);
             $html = $html->render();
 
             $mpdf->SetProtection(array('print'));
@@ -323,21 +341,22 @@ class TransactionController extends Controller
             $mpdf->watermarkTextAlpha = 0.1;
             $mpdf->SetDisplayMode('fullpage');
             $mpdf->WriteHTML($html);
-            $mpdf->Output("WhelsonReceipt".$transaction->employee.'.pdf', 'I');
+            $mpdf->Output("WhelsonReceipt" . $transaction->employee . '.pdf', 'I');
             return redirect()->back();
         } catch (\Mpdf\MpdfException $e) { // Note: safer fully qualified exception name used for catch
             // Process the exception, log, print etc.
             echo $e->getMessage();
-
         }
     }
 
-    public function myTransactions(){
-        $transactions = Transaction::where('employee','=', Auth::user()->paynumber)->get();
+    public function myTransactions()
+    {
+        $transactions = Transaction::where('employee', '=', Auth::user()->paynumber)->get();
         return view('transactions.mytransactions', compact('transactions'));
     }
 
-    public function currentTransactions(){
+    public function currentTransactions()
+    {
         $transactions = Transaction::whereMonth('created_at', date('m'))
             ->whereYear('created_at', date('Y'))
             ->get();
