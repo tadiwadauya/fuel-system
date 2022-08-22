@@ -233,7 +233,7 @@ class AllocationController extends Controller
                 }
 
                 $dalloc->paynumber = $director->paynumber;
-                $dalloc->allocation = $director->allocation  . $month;
+                $dalloc->allocation = $director->paynumber . $director->allocation  . $month;
                 $dalloc->quantity = $newAlloc;
                 $dalloc->balance = $newAlloc;
 

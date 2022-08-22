@@ -116,6 +116,9 @@ class TransactionController extends Controller
                 ->whereMonth('created_at', date('m'))
                 ->firstOrFail();
             $currentAlloc->balance = $currentAlloc->balance - $request->input('quantity');
+            if ($currentAlloc->balance < 0) {
+                $currentAlloc->balance = 0;
+            }
             $currentAlloc->used = $currentAlloc->used + $request->input('quantity');
 
             if ($currentAlloc->used > $currentAlloc->quantity) {
