@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DirectorAllocations;
 use Illuminate\Http\Request;
-
+use App\Models\User;
 class DirectorAllocationsController extends Controller
 {
     /**
@@ -84,21 +84,10 @@ class DirectorAllocationsController extends Controller
         //
     }
 
-    public function new()
+    public function execAllocationsPrev()
     {
-        $p = "2A";
-
-        $da = DirectorAllocations::where('paynumber', '=', $p)
-            ->whereMonth('created_at', date('m'))
-            ->firstOrFail();
-
-        if ($da) {
-            $da->balance = $da->balance - 10;
-            $da->used = $da->used + 10;
-
-            $da->save();
-
-            dd($da);
-        }
+        $users = User::all()->where('allocation','=','Director');
+        $allocations = DirectorAllocations::all();
+        return view('allocations.exec-allocations-prev', compact('allocations', 'users'));
     }
 }

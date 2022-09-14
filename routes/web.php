@@ -341,6 +341,11 @@ Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'tw
     Route::put('/fuelsettings', 'FsettingController@updateMaSettingsEFuel')->name('fsetting.update')->middleware(['manadmin']);
 });
 
+Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'activity', 'twostep', 'checkblocked']], function () {
+
+    Route::get('/executive-allocations-previous', 'DirectorAllocationsController@execAllocationsPrev')->name('prev-exec-alloc');
+});
+
 Route::group(['middleware' => ['auth', 'activated', 'checkpass', 'manadmin', 'activity', 'twostep', 'checkblocked']], function () {
 
     Route::resource('/deleted-containers', 'SoftDeleteContainerTransaction', [

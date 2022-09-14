@@ -133,6 +133,7 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{url('/allocations')}}"> Users </a></li>
                         <li><a href="{{url('/executive-allocations')}}">Directors </a></li>
+                        <li><a href="{{url('/executive-allocations-previous')}}">Directors Previous Allocation </a></li>
                         <li><a href="{{url('/myallocations')}}">My Allocations </a></li>
                     </ul>
                 </li>
@@ -377,6 +378,7 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{url('/allocations')}}"> Users </a></li>
                         <li><a href="{{url('/executive-allocations')}}">Directors </a></li>
+                        <li><a href="{{url('/executive-allocations-previous')}}">Directors Previous Allocation </a></li>
                         <li><a href="{{url('/myallocations')}}">My Allocations </a></li>
                     </ul>
                 </li>
@@ -589,6 +591,7 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{url('/allocations')}}"> Users </a></li>
                         <li><a href="{{url('/executive-allocations')}}">Directors </a></li>
+                        <li><a href="{{url('/executive-allocations-previous')}}">Directors Previous Allocation </a></li>
                         <li><a href="{{url('/myallocations')}}">My Allocations </a></li>
                     </ul>
                 </li>

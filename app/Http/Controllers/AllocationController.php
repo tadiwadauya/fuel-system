@@ -249,4 +249,6 @@ class AllocationController extends Controller
         $allocations = User::where('allocation', '=', 'Director')->get();
         return view('allocations.exec-allocations', compact('allocations'));
     }
+
+    
 }
