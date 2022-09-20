@@ -11,7 +11,8 @@ use Validator;
 
 class NonAllocationController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $non_allocations = NonAllocation::all();
         return view('non_allocations.non_allocations', compact('non_allocations'));
     }
@@ -21,8 +22,9 @@ class NonAllocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {
-        $users = User::all()->where('allocation','=','Non-allocation');
+    public function create()
+    {
+        $users = User::all()->where('allocation', '=', 'Non-allocation');
 
         return view('non_allocations.create-non_allocation', compact('users'));
     }
@@ -35,7 +37,8 @@ class NonAllocationController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
                 'user_id'                  => 'required|max:255',
                 'paynumber'                  => 'required|max:255',
@@ -54,7 +57,7 @@ class NonAllocationController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $customer = User::where('paynumber','=',$request->input('paynumber'))->firstOrFail();
+        $customer = User::where('paynumber', '=', $request->input('paynumber'))->firstOrFail();
 
         if ($customer->non_allocation != 'NonAllocation') {
             return redirect('non_allocations')->with('error', 'This user can not buy fuel.');
@@ -124,40 +127,44 @@ class NonAllocationController extends Controller
         return redirect('non_allocations')->with('success', 'Successfully deleted non_allocation.');
     }
 
-    public function getAllocationss($paynumber) {
+    public function getAllocationss($paynumber)
+    {
         /*$directors = DB::table("users")
             ->where('allocation','=','Director')
             ->get();*/
 
         $allocations = DB::table("non_allocations")
-            ->where("paynumber",$paynumber)
-            ->where("deleted_at",'=',null)
+            ->where("paynumber", $paynumber)
+            ->where("deleted_at", '=', null)
             ->pluck("allocation");
 
-        if($allocations == null){
+        if ($allocations == null) {
             $allocations = DB::table("users")
-                ->where("paynumber",$paynumber)
+                ->where("paynumber", $paynumber)
                 ->pluck("alloc_size");
         }
 
         return response()->json($allocations);
     }
 
-    public function myAllocations(){
+    public function myAllocations()
+    {
         $non_allocations = NonAllocation::where('paynumber', '=', Auth::user()->paynumber)
             ->withTrashed()
             ->get();
         return view('non_allocations.mynon_allocations', compact('non_allocations'));
     }
 
-    public function bulkCreateNonAllocations(){
-        $users = User::where('allocation','=','Non-allocation')
+    public function bulkCreateNonAllocations()
+    {
+        $users = User::where('allocation', '=', 'Non-allocation')
             ->get();
 
         return view('non_allocations.create-bulk-non_allocations', compact('users'));
     }
 
-    public function non_allocationsBatchers(){
+    public function non_allocationsBatchers()
+    {
         NonAllocation::query()->delete();
 
         $users = User::where('allocation', '=', 'Non-Allocation')
@@ -169,9 +176,9 @@ class NonAllocationController extends Controller
 
             $alloc = $user->paynumber . $month;
 
-            if($user->paynumber == '791') {
+            if ($user->paynumber == '791') {
                 $alloc_size = 120;
-            }else {
+            } else {
                 $alloc_size = 60;
             }
 
@@ -184,33 +191,32 @@ class NonAllocationController extends Controller
             ]);
 
             $allocation->save();
-
         }
 
-        $directors = User::where('allocation', '=', 'Director')
-            ->get();
+        // // $directors = User::where('allocation', '=', 'Director')
+        // //     ->get();
 
-        foreach ($directors as $director) {
-            $newAlloc = $director->alloc_size + 250;
+        // // foreach ($directors as $director) {
+        // //     $newAlloc = $director->alloc_size + 250;
 
-            if ($director->alloc_size<0){
-                DB::table("users")
-                    ->where("allocation", '=', 'Director')
-                    ->where("id", '=', $director->id)
-                    ->update(['alloc_size' => '250.00', 'updated_at' => now()]);
-            } else {
-                DB::table("users")
-                    ->where("allocation", '=', 'Director')
-                    ->where("id", '=', $director->id)
-                    ->update(['alloc_size' => $newAlloc, 'updated_at' => now()]);
-            }
-        }
+        // //     if ($director->alloc_size<0){
+        // //         DB::table("users")
+        // //             ->where("allocation", '=', 'Director')
+        // //             ->where("id", '=', $director->id)
+        // //             ->update(['alloc_size' => '250.00', 'updated_at' => now()]);
+        // //     } else {
+        // //         DB::table("users")
+        // //             ->where("allocation", '=', 'Director')
+        // //             ->where("id", '=', $director->id)
+        // //             ->update(['alloc_size' => $newAlloc, 'updated_at' => now()]);
+        // //     }
+        // }
 
-        return redirect('non_allocations')->with('success', 'Fuel NonAllocations for '.date('F Y'). ' have been created successfully');
-
+        return redirect('non_allocations')->with('success', 'Fuel NonAllocations for ' . date('F Y') . ' have been created successfully');
     }
 
-    public function execAllocations(){
+    public function execAllocations()
+    {
         $allocations = User::where('allocation', '=', 'Director')->get();
         return view('non_allocations.exec-allocations', compact('allocations'));
     }
